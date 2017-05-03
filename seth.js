@@ -5,6 +5,7 @@ const developerMode = false;
 const seth = new Discord.Client();
 const User = require("./GJUser.js");
 
+//Created a map that will hold Key: Discord UserID , GJUser
 const map = new Map();
 
 //TODO read in the JSON file.
@@ -87,6 +88,7 @@ process.on('exit',	end => console.log("later bro"));
 process.on('SIGINT', die =>{ console.log("peace");process.exit();});
 
 seth.login(config.token);
+
 
 function save()
 {
