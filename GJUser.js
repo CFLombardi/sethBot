@@ -18,6 +18,10 @@ method.setCount = function(count) {
     this.totalCount = count;
 };
 
+method.getCount = function(){
+	return this.totalCount;
+}
+
 method.addDosh = function()
 {
 	this.totalCount++;

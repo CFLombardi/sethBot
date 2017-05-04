@@ -7,6 +7,9 @@ const User = require("./GJUser.js");
 const seth = new Discord.Client();
 require('events').EventEmitter.prototype._maxListeners = 0;
 
+const upEmoji = 309462363667562506;
+const downEmoji = 280800661430599680;
+
 //This controls whether only the seth channel is listened to or all channels.
 //true	: Only seth channel.
 //false : All channels
@@ -37,7 +40,7 @@ fs.readFile('savedCount.json', 'utf8', function readFileCallback(err, data){
 //Key: messageid ::: Value: collection<integer> (Discord UserIDs of members who reacted to a message )
 const usersWhoReacted = new Map();
 
-//Key: messageid ::: vVlue: Discord UserID of the user who sent a particular message.
+//Key: messageid ::: Value: Discord UserID of the user who sent a particular message.
 const messageToUser = new Map();
 
 
@@ -46,9 +49,33 @@ seth.on("message", msg => {
 	var input = msg.content;
 	if((msg.channel.name == "sethbotdeveloper" || !developerMode) && !msg.author.bot )
 	{
+		if(msg.content.toLowerCase().includes("!dosh"))
+		{
+			var mentions = msg.mentions.users;
+			var outStr = "";
+			if(mentions.size ==0)
+			{
+				msg.channel.send("Are you on the green bro? Gotta mention someone\nLike \"!dosh @someone\"");	
+			}
+			mentions.forEach( function(value,key,mentions) { 
+				var user = karmaMap.get(key);
+				if(user != undefined)
+				{
+					outStr += user.name + " has "+user.getCount()+ " dosh, Brah!\n";
+				}
+				else
+				{
+					outStr += value.username + " has no dosh.\n";
+				}
+
+				
+			});	
+			if(outStr!="")
+				msg.channel.send(outStr);	
+		}
 		const collector = msg.createReactionCollector(
-		 (reaction, user) => (reaction.emoji.id==="280800661430599680" || reaction.emoji.id==="309462363667562506") && !user.bot,
-		 { time: 43200000 }//10 seconds for collection time before it dies.
+		 (reaction, user) => (reaction.emoji.id==downEmoji || reaction.emoji.id==upEmoji) && !user.bot,
+		 { time: 43200000 }//12 hours for collection time before it dies.
 //		 { time: 10000 }//10 seconds for collection time before it dies.
 
 		);
@@ -109,16 +136,14 @@ function trackCollector(msg, collector)
 {
 	collector.on('collect', r => 
 	{
-		if(r.emoji.id == "309462363667562506")
+		if(r.emoji.id == upEmoji)
 		{
 			handleUp(r);
 		}
-		if(r.emoji.id == "280800661430599680")
+		if(r.emoji.id == downEmoji)
 		{
 			handleDown(r);
 		}
-		//msg.channel.sendMessage(`Collected ${r.emoji.name}`);
-		//console.log(r);
 	});
 
 	collector.on('end', collected => 
@@ -164,8 +189,9 @@ function updateDosh(reaction,addDosh)
 		//If the user is one of these users who up/downvoted themselves, yell at them please.
 		if(key == authorID)
 		{
-			msg.reply("Bruh, upvoting your own post? Get out");
+			msg.reply("Bruh, voting your own post? Get out. I SAID GET THAT SHIT OUT");
 			console.log("Someone is trying to upvote their own post... jerks.");
+			reaction.remove(msg.author);
 			return;
 		}
 
