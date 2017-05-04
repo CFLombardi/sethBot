@@ -18,5 +18,14 @@ method.setCount = function(count) {
     this.totalCount = count;
 };
 
+method.addDosh = function()
+{
+	this.totalCount++;
+}
+
+method.removeDosh = function()
+{
+	this.totalCount--;
+}
 
 module.exports = GJUser;
