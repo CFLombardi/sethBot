@@ -7,9 +7,6 @@ const User = require("./GJUser.js");
 const seth = new Discord.Client();
 require('events').EventEmitter.prototype._maxListeners = 0;
 
-const upEmoji = 309462363667562506;
-const downEmoji = 280800661430599680;
-
 //This controls whether only the seth channel is listened to or all channels.
 //true	: Only seth channel.
 //false : All channels
@@ -55,9 +52,9 @@ seth.on("message", msg => {
 			var outStr = "";
 			if(mentions.size ==0)
 			{
-				msg.channel.send("Are you on the green bro? Gotta mention someone\nLike \"!dosh @someone\"");	
+				msg.channel.send("Are you on the green bro? Gotta mention someone\nLike \"!dosh @someone\"");
 			}
-			mentions.forEach( function(value,key,mentions) { 
+			mentions.forEach( function(value,key,mentions) {
 				var user = karmaMap.get(key);
 				if(user != undefined)
 				{
@@ -68,42 +65,19 @@ seth.on("message", msg => {
 					outStr += value.username + " has no dosh.\n";
 				}
 
-				
-			});	
+
+			});
 			if(outStr!="")
-				msg.channel.send(outStr);	
+				msg.channel.send(outStr);
 		}
 		const collector = msg.createReactionCollector(
-		 (reaction, user) => (reaction.emoji.id==downEmoji || reaction.emoji.id==upEmoji) && !user.bot,
+		 (reaction, user) => (reaction.emoji.id==config.downEmoji || reaction.emoji.id==config.upEmoji) && !user.bot,
 		 { time: 43200000 }//12 hours for collection time before it dies.
-//		 { time: 10000 }//10 seconds for collection time before it dies.
+     //{ time: 10000 }//10 seconds for collection time before it dies.
 
 		);
 		trackCollector(msg, collector);
-		
-		//msg.channel.sendMessage("Straight fuckin' gnar");
-
-		//msg.reply("I'm replying");
 	}
-
-	/*
-	var mention = "TBZ";
-	if(input.includes(mention)) {
-		console.log("What up "+mention);
-	}
-
-	if(!msg.content.startsWith(config.prefix)) {
-		return;
-	}
-
-	if(msg.isMentioned(seth.user)) {
-		msg.channel.sendMessage("YEAH DUDE YEAH DUDE!");
-	}
-
-	if(msg.content.startsWith(config.prefix)) {
-		msg.channel.sendMessage("Straight fuckin' gnar");
-	}
-	*/
 });
 
 seth.on("ready", () => {
@@ -124,7 +98,7 @@ function save()
 var obj = {
    dosh: []
 };
-karmaMap.forEach( function(value,key,karmaMap) { 
+karmaMap.forEach( function(value,key,karmaMap) {
 obj.dosh.push(value);
 });
 var json = JSON.stringify(obj);
@@ -134,19 +108,19 @@ fs.writeFile('savedCount.json', json, 'utf8', null);
 //Takes in a collector and a message and sets up the tracker.
 function trackCollector(msg, collector)
 {
-	collector.on('collect', r => 
+	collector.on('collect', r =>
 	{
-		if(r.emoji.id == upEmoji)
+		if(r.emoji.id == config.upEmoji)
 		{
 			handleUp(r);
 		}
-		if(r.emoji.id == downEmoji)
+		if(r.emoji.id == config.downEmoji)
 		{
 			handleDown(r);
 		}
 	});
 
-	collector.on('end', collected => 
+	collector.on('end', collected =>
 	{
 		collected.forEach(function(value,key,collected)
 		{
@@ -165,7 +139,7 @@ function handleUp(reaction)
 //Handle when goes down.
 function handleDown(reaction)
 {
-	updateDosh(reaction,false);	
+	updateDosh(reaction,false);
 }
 
 //General function to handle the physical raising and lowering of dosh.
@@ -175,7 +149,7 @@ function updateDosh(reaction,addDosh)
 	var msg = reaction.message;
 	var authorID = msg.author.id;
 	var authorName = msg.author.username;
-	
+
 	//If this is the first time we are seeing a message, add it to the maps that keep track of this stuff.
 	if(!messageToUser.has(msg.id))
 	{
@@ -184,8 +158,8 @@ function updateDosh(reaction,addDosh)
 	}
 
 	//For each user who ever commented, go through and make sure they have the appropriate +1 or -1
-	messageUsers.forEach(function(value,key,messageUsers) 
-	{ 
+	messageUsers.forEach(function(value,key,messageUsers)
+	{
 		//If the user is one of these users who up/downvoted themselves, yell at them please.
 		if(key == authorID)
 		{
