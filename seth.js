@@ -6,6 +6,7 @@ const config = require("./config.json");
 const User = require("./GJUser.js");
 const seth = new Discord.Client();
 require('events').EventEmitter.prototype._maxListeners = 0;
+const {commands} = require("./commands");
 
 //This controls whether only the seth channel is listened to or all channels.
 //true	: Only seth channel.
@@ -46,8 +47,9 @@ seth.on("message", msg => {
 	var input = msg.content;
 	if((msg.channel.name == "sethbotdeveloper" || !developerMode) && !msg.author.bot )
 	{
-		if(msg.content.toLowerCase().includes("!dosh"))
+		if(msg.content.toLowerCase().startsWith("!dosh"))
 		{
+      commands.dosh.run(msg, karmaMap);
 			var mentions = msg.mentions.users;
 			var outStr = "";
 			if(mentions.size ==0)
