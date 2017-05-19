@@ -92,7 +92,7 @@ process.on('exit',	end => console.log("later bro"));
 //catches ctrl+c event
 process.on('SIGINT', die =>{ console.log("peace");process.exit();});
 
-seth.login(config.token);
+seth.login(config.devToken);
 
 //Saves the Karma Map.
 function save()
