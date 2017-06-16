@@ -150,7 +150,7 @@ function updateDosh(reaction,addDosh)
 	var messageUsers = reaction.users;
 	var msg = reaction.message;
 	var authorID = msg.author.id;
-	var authorName = msg.author.username;
+	var authorName = (msg.member.nickname) ? msg.member.nickname : msg.author.username;
 
 	//If this is the first time we are seeing a message, add it to the maps that keep track of this stuff.
 	if(!messageToUser.has(msg.id))
