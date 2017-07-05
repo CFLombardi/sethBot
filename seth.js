@@ -49,7 +49,11 @@ seth.on("message", msg => {
 	{
 		if(msg.content.toLowerCase().startsWith("!dosh"))
 		{
-      commands.dosh.run(msg, karmaMap);
+      var needsUpdate = commands.dosh.run(msg, karmaMap);
+      if(needsUpdate) {
+        save();
+      }
+
 			var mentions = msg.mentions.users;
 			var outStr = "";
 			if(mentions.size ==0)
@@ -95,16 +99,15 @@ process.on('SIGINT', die =>{ console.log("peace");process.exit();});
 seth.login(config.devToken);
 
 //Saves the Karma Map.
-function save()
-{
-var obj = {
-   dosh: []
-};
-karmaMap.forEach( function(value,key,karmaMap) {
-obj.dosh.push(value);
-});
-var json = JSON.stringify(obj);
-fs.writeFile('savedCount.json', json, 'utf8', null);
+function save() {
+  var obj = {
+     dosh: []
+  };
+  karmaMap.forEach( function(value,key,karmaMap) {
+  obj.dosh.push(value);
+  });
+  var json = JSON.stringify(obj);
+  fs.writeFile('savedCount.json', json, 'utf8', null);
 }
 
 //Takes in a collector and a message and sets up the tracker.
