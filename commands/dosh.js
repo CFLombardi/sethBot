@@ -15,25 +15,17 @@ exports.run = function(msg, currentDosh) {
     if(command[1].endsWith("++")) {
       var target = command[1].split("+");
 
-      //if there are no entries in messageHistory then update dosh
-      if(messageHistory.length === 0) {
-        console.log("messageHistory is blank");
-        updatedDosh = checkCurrentKarma(target[0], currentDosh);
+      for(var i = 0; i < messageHistory.length; i++) {
+          if((target[0] === messageHistory[i].target) && (msg.author.username === messageHistory[i].user) && ((currentTime - messageHistory[i].timeStamp) < 300000)) {
+            console.log("hi");
+            return false;
+          }
+      }
 
-        if(!updatedDosh) {
-          updatedDosh = updateDoshMap("+", msg, currentDosh);
-        }
-      } else {
-        //check to make sure the user isn't already in the Map
-        for(var i = 0; i < messageHistory.length; i++) {
-            if((target[0] != messageHistory[i].target) && (msg.author.username != messageHistory[i].user) && ((currentTime - messageHistory[i].timeStamp) > 300000)) {
-              updatedDosh = updateDoshMap("+", msg, currentDosh);
-            }
-        }
+      updatedDosh = checkCurrentKarma(target[0], currentDosh);
 
-        if(!updatedDosh) {
-          updatedDosh = checkCurrentKarma(target[0], currentDosh);
-        }
+      if(!updatedDosh) {
+        updatedDosh = updateDoshMap("+", msg, currentDosh);
       }
     } else if(command[1].endsWith("--")) {
       var target = command[1].split("-");
@@ -44,9 +36,8 @@ exports.run = function(msg, currentDosh) {
         userID: msg.author.id,
         user: msg.author.username,
         target: target[0],
-        timestamp: timeStamp
+        timeStamp: timeStamp
       });
-      console.log("Dosh updated: "+updatedDosh);
     }
     console.log(messageHistory);
   }
