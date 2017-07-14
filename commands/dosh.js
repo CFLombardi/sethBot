@@ -32,10 +32,10 @@ exports.run = function(msg, currentDosh) {
     }
 
     //check to see if they already have dosh and update that count accordingly
-    updatedDosh = checkCurrentKarma(command[0], currentDosh);
+    updatedDosh = checkCurrentKarma(command[0], command[1], currentDosh);
 
     if(!updatedDosh) {
-      updatedDosh = updateDoshMap("+", msg, currentDosh);
+      updatedDosh = updateDoshMap(command[1], msg, currentDosh);
     }
 
     if(updatedDosh) {
@@ -53,14 +53,14 @@ exports.run = function(msg, currentDosh) {
 }
 
 //checks "dosh map" and returns true of they exist in the map
-function checkCurrentKarma(target, karmaMap) {
+function checkCurrentKarma(target, direction, karmaMap) {
   karmaMap.forEach(function(value, key, users) {
     //if so update their dosh
     console.log("This is the value "+value);
     console.log("This is the key "+key);
     console.log("This is the user "+users);
     if((target === value.name) || (target === value.nickname)) {
-      value.addDosh();
+      (direction === "+") ? value.addDosh() : value.removeDosh();
       return true;
     }
   });
