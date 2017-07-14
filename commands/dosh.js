@@ -4,38 +4,46 @@ const User = require("../GJUser.js");
 var messageHistory = [];
 
 exports.run = function(msg, currentDosh) {
-  var command = msg.content.split(" ");
+  var content = msg.content.split(" ");
   var timeStamp = Math.floor(msg.createdTimestamp/1000);
-  var currentTime = Math.floor(Date.now()/1000);
+  //var currentTime = Math.floor(Date.now()/1000);
   var updatedDosh = false;
+  var command;
 
   //verify correct syntax for the command
-  if(command.length === 2) {
-    //determine if it's an upvote or a downvote
-    if(command[1].endsWith("++")) {
-      var target = command[1].split("+");
+  if(content.length === 2) {
+    //gather whether they are down voting or up voting
+    if(content[1].endsWith("++")) {
+      command = content[1].split("++");
+      command[1] = "+";
+    } else if (content[1].endsWith("--")) {
+      command = content[1].split("--");
+      command[1] = "-";
+    }
 
-      for(var i = 0; i < messageHistory.length; i++) {
-          if((target[0] === messageHistory[i].target) && (msg.author.username === messageHistory[i].user) && ((currentTime - messageHistory[i].timeStamp) < 300000)) {
-            console.log("hi");
-            return false;
-          }
-      }
+    console.log(command);
 
-      updatedDosh = checkCurrentKarma(target[0], currentDosh);
+    //user can only invoke this command on the same target once every 5 minutes
+    for(var i = 0; i < messageHistory.length; i++) {
+        if((msg.author.username === messageHistory[i].user) && (command[0] === messageHistory[i].target) && (command[1] === messageHistory[i].direction) && ((timeStamp - messageHistory[i].timeStamp) < 300000)) {
+          console.log("hi");
+          return false;
+        }
+    }
 
-      if(!updatedDosh) {
-        updatedDosh = updateDoshMap("+", msg, currentDosh);
-      }
-    } else if(command[1].endsWith("--")) {
-      var target = command[1].split("-");
+    //check to see if they already have dosh and update that count accordingly
+    updatedDosh = checkCurrentKarma(command[0], currentDosh);
+
+    if(!updatedDosh) {
+      updatedDosh = updateDoshMap("+", msg, currentDosh);
     }
 
     if(updatedDosh) {
       messageHistory.push({
         userID: msg.author.id,
         user: msg.author.username,
-        target: target[0],
+        target: command[0],
+        direction: command[1],
         timeStamp: timeStamp
       });
     }
@@ -48,6 +56,9 @@ exports.run = function(msg, currentDosh) {
 function checkCurrentKarma(target, karmaMap) {
   karmaMap.forEach(function(value, key, users) {
     //if so update their dosh
+    console.log("This is the value "+value);
+    console.log("This is the key "+key);
+    console.log("This is the user "+users);
     if((target === value.name) || (target === value.nickname)) {
       value.addDosh();
       return true;
@@ -57,11 +68,11 @@ function checkCurrentKarma(target, karmaMap) {
   return false;
 }
 
-function updateDoshMap(target, message, karmaMap) {
+function updateDoshMap(direction, message, karmaMap) {
   var id = message.id;
   var name = message.author.username;
   var user = new User(id, name);
-  (target === "+") ? user.addDosh() : user.removeDosh();
+  (direction === "+") ? user.addDosh() : user.removeDosh();
   karmaMap.set(id, user);
   return true;
 }
