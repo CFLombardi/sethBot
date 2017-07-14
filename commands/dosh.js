@@ -19,14 +19,14 @@ exports.run = function(msg, currentDosh) {
     } else if (content[1].endsWith("--")) {
       command = content[1].split("--");
       command[1] = "-";
+    } else {
+      return false;
     }
-
-    console.log(command);
 
     //user can only invoke this command on the same target once every 5 minutes
     for(var i = 0; i < messageHistory.length; i++) {
-        if((msg.author.username === messageHistory[i].user) && (command[0] === messageHistory[i].target) && (command[1] === messageHistory[i].direction) && ((timeStamp - messageHistory[i].timeStamp) < 300000)) {
-          console.log("hi");
+        if((msg.author.username === messageHistory[i].user) && (command[0] === messageHistory[i].target) && ((timeStamp - messageHistory[i].timeStamp) < 300000)) {
+          console.log("You've already voted.  Please try again later");
           return false;
         }
     }
@@ -35,7 +35,7 @@ exports.run = function(msg, currentDosh) {
     updatedDosh = checkCurrentKarma(command[0], command[1], currentDosh);
 
     if(!updatedDosh) {
-      updatedDosh = updateDoshMap(command[1], msg, currentDosh);
+      updatedDosh = updateDoshMap(command[0], command[1], msg, currentDosh);
     }
 
     if(updatedDosh) {
@@ -48,7 +48,10 @@ exports.run = function(msg, currentDosh) {
       });
     }
     console.log(messageHistory);
+  } else {
+    console.log("Incorrect syntax.  Try something like '!dosh Seth++'")
   }
+  
   return updatedDosh;
 }
 
@@ -56,9 +59,6 @@ exports.run = function(msg, currentDosh) {
 function checkCurrentKarma(target, direction, karmaMap) {
   karmaMap.forEach(function(value, key, users) {
     //if so update their dosh
-    console.log("This is the value "+value);
-    console.log("This is the key "+key);
-    console.log("This is the user "+users);
     if((target === value.name) || (target === value.nickname)) {
       (direction === "+") ? value.addDosh() : value.removeDosh();
       return true;
@@ -68,9 +68,9 @@ function checkCurrentKarma(target, direction, karmaMap) {
   return false;
 }
 
-function updateDoshMap(direction, message, karmaMap) {
+function updateDoshMap(target, direction, message, karmaMap) {
   var id = message.id;
-  var name = message.author.username;
+  var name = target;
   var user = new User(id, name);
   (direction === "+") ? user.addDosh() : user.removeDosh();
   karmaMap.set(id, user);
