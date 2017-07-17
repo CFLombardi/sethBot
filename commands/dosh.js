@@ -25,9 +25,13 @@ exports.run = function(msg, currentDosh) {
 
     //user can only invoke this command on the same target once every 5 minutes
     for(var i = 0; i < messageHistory.length; i++) {
-        if((msg.author.username === messageHistory[i].user) && (command[0] === messageHistory[i].target) && ((timeStamp - messageHistory[i].timeStamp) < 300000)) {
-          console.log("You've already voted.  Please try again later");
-          return false;
+        if(
+           (msg.author.username === messageHistory[i].user) &&
+           (command[0].toLowerCase() === messageHistory[i].target.toLowerCase()) &&
+           ((timeStamp - messageHistory[i].timeStamp) < 300000)
+          ) {
+            msg.channel.send("You've already voted.  Please try again later");
+            return false;
         }
     }
 
@@ -51,15 +55,15 @@ exports.run = function(msg, currentDosh) {
   } else {
     console.log("Incorrect syntax.  Try something like '!dosh Seth++'")
   }
-  
+
   return updatedDosh;
 }
 
-//checks "dosh map" and returns true of they exist in the map
+//checks "dosh map" and returns true if they exist in the map
 function checkCurrentKarma(target, direction, karmaMap) {
   karmaMap.forEach(function(value, key, users) {
     //if so update their dosh
-    if((target === value.name) || (target === value.nickname)) {
+    if((target.toLowerCase() === value.name.toLowerCase()) /*|| (target.toLowerCase() === value.nickname.toLowerCase())*/) {
       (direction === "+") ? value.addDosh() : value.removeDosh();
       return true;
     }

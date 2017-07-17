@@ -56,7 +56,7 @@ seth.on("message", msg => {
 
 			var mentions = msg.mentions.users;
 			var outStr = "";
-			if(mentions.size ==0)
+			if(mentions.size ==0 && needsUpdate === false)
 			{
 				msg.channel.send("Are you on the green bro? Gotta mention someone\nLike \"!dosh @someone\"");
 			}
