@@ -33,14 +33,14 @@ exports.run = function(msg, currentDosh) {
            (command[0].toLowerCase() === messageHistory[i].target.toLowerCase()) &&
            ((timeStamp - messageHistory[i].timeStamp) < 300000)
           ) {
-            msg.channel.send("You've already voted.  Please try again later");
+            msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
             return "false";
         }
     }
 
     //check to see if they already have dosh and update that count accordingly
     updatedDosh = checkCurrentKarma(command[0], command[1], currentDosh);
-    
+
     if(!updatedDosh) {
       updatedDosh = updateDoshMap(command[0], command[1], msg, currentDosh);
     }
@@ -55,7 +55,8 @@ exports.run = function(msg, currentDosh) {
       });
     }
   } else {
-    console.log("Incorrect syntax.  Try something like '!dosh Seth++'")
+    msg.channel.send("You better check some websites because that just not right.  Try something like '!dosh Seth++'")
+    updatedDosh = "false";
   }
 
   return updatedDosh;
@@ -75,14 +76,18 @@ function checkCurrentKarma(target, direction, karmaMap) {
 }
 
 function updateDoshMap(target, direction, message, karmaMap) {
-  var id = message.id;
-  var name = target;
-  var user = new User(id, name);
-  (direction === "+") ? user.addDosh() : user.removeDosh();
-  if(message.member.nickname != null) {
-    console.log("Logging the "+message.member.nickname);
-    user.setNickName(message.member.nickname);
+  if(target != "") {
+    var id = message.id;
+    var name = target;
+    var user = new User(id, name);
+    (direction === "+") ? user.addDosh() : user.removeDosh();
+    if(message.member.nickname != null) {
+      console.log("Logging the "+message.member.nickname);
+      user.setNickName(message.member.nickname);
+    }
+    karmaMap.set(id, user);
+    return true;
+  } else {
+    message.channel.send("That's not a valid target bro.");
   }
-  karmaMap.set(id, user);
-  return true;
 }
