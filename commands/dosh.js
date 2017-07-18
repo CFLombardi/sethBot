@@ -11,19 +11,20 @@ exports.run = function(msg, currentDosh) {
   var updatedDosh = false;
   var command;
 
-  //console.log(mentions);
+  //console.log(content[1].split("+").length - 1);
 
   //verify correct syntax for the command
   if(content.length === 2) {
     //gather whether they are down voting or up voting
-    if(content[1].endsWith("++")) {
+    if(content[1].endsWith("++") && (content[1].split("+").length - 1) === 2) {
       command = content[1].split("++");
       command[1] = "+";
-    } else if (content[1].endsWith("--")) {
+    } else if (content[1].endsWith("--") && (content[1].split("-").length - 1) === 2) {
       command = content[1].split("--");
       command[1] = "-";
     } else {
-      return false;
+      msg.channel.send("BREH!  Do you even syntax?!  Try something like '!dosh Seth++'");
+      return "false";
     }
 
     //user can only invoke this command on the same target once every 5 minutes
@@ -55,7 +56,7 @@ exports.run = function(msg, currentDosh) {
       });
     }
   } else {
-    msg.channel.send("You better check some websites because that just not right.  Try something like '!dosh Seth++'")
+    msg.channel.send("You better check some websites because that's just not right.  Try something like '!dosh Seth++'")
     updatedDosh = "false";
   }
 
