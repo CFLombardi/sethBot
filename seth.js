@@ -29,7 +29,7 @@ fs.readFile('savedCount.json', 'utf8', function readFileCallback(err, data){
     	var totalCount = obj.dosh[i].totalCount;
     	var user = new User(id,name);
     	user.setCount(totalCount);
-		karmaMap.set(id, user);
+		  karmaMap.set(id, user);
     }
 
 
@@ -50,7 +50,7 @@ seth.on("message", msg => {
 		if(msg.content.toLowerCase().startsWith("!dosh"))
 		{
       var needsUpdate = commands.dosh.run(msg, karmaMap);
-      if(needsUpdate) {
+      if(needsUpdate === true) {
         save();
       }
 
@@ -62,9 +62,10 @@ seth.on("message", msg => {
 			}
 			mentions.forEach( function(value,key,mentions) {
 				var user = karmaMap.get(key);
+        var outStrUser = (user.getNickName()) ? user.getNickName() : user.name;
 				if(user != undefined)
 				{
-					outStr += user.name + " has "+user.getCount()+ " dosh, Brah!\n";
+					outStr += outStrUser + " has "+user.getCount()+ " dosh, Brah!\n";
 				}
 				else
 				{

@@ -6,9 +6,12 @@ var messageHistory = [];
 exports.run = function(msg, currentDosh) {
   var content = msg.content.split(" ");
   var timeStamp = Math.floor(msg.createdTimestamp/1000);
+  var mentions = msg.mentions.users;
   //var currentTime = Math.floor(Date.now()/1000);
   var updatedDosh = false;
   var command;
+
+  //console.log(mentions);
 
   //verify correct syntax for the command
   if(content.length === 2) {
@@ -31,13 +34,13 @@ exports.run = function(msg, currentDosh) {
            ((timeStamp - messageHistory[i].timeStamp) < 300000)
           ) {
             msg.channel.send("You've already voted.  Please try again later");
-            return false;
+            return "false";
         }
     }
 
     //check to see if they already have dosh and update that count accordingly
     updatedDosh = checkCurrentKarma(command[0], command[1], currentDosh);
-
+    
     if(!updatedDosh) {
       updatedDosh = updateDoshMap(command[0], command[1], msg, currentDosh);
     }
@@ -51,7 +54,6 @@ exports.run = function(msg, currentDosh) {
         timeStamp: timeStamp
       });
     }
-    console.log(messageHistory);
   } else {
     console.log("Incorrect syntax.  Try something like '!dosh Seth++'")
   }
@@ -61,24 +63,24 @@ exports.run = function(msg, currentDosh) {
 
 //checks "dosh map" and returns true if they exist in the map
 function checkCurrentKarma(target, direction, karmaMap) {
+  var found;
   karmaMap.forEach(function(value, key, users) {
     //if so update their dosh
-    if((target.toLowerCase() === value.name.toLowerCase()) /*|| (target.toLowerCase() === value.nickname.toLowerCase())*/) {
+    if((target.toLowerCase() === value.name.toLowerCase())) {
       (direction === "+") ? value.addDosh() : value.removeDosh();
-      return true;
+      found = true;
     }
   });
-
-  return false;
+  return found;
 }
 
 function updateDoshMap(target, direction, message, karmaMap) {
-  console.log(message.member.nickname);
   var id = message.id;
   var name = target;
   var user = new User(id, name);
   (direction === "+") ? user.addDosh() : user.removeDosh();
-  if(typeof message.member.nickname != undefined) {
+  if(message.member.nickname != null) {
+    console.log("Logging the "+message.member.nickname);
     user.setNickName(message.member.nickname);
   }
   karmaMap.set(id, user);
