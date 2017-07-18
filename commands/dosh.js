@@ -3,7 +3,7 @@ const User = require("../GJUser.js");
 //for each message we will track the ID, author, timestamp, and target of the command
 var messageHistory = [];
 
-exports.run = function(msg, currentDosh) {
+exports.run = function(msg, currentDosh, bot) {
   var content = msg.content.split(" ");
   var timeStamp = Math.floor(msg.createdTimestamp/1000);
   var mentions = msg.mentions.users;
@@ -11,7 +11,8 @@ exports.run = function(msg, currentDosh) {
   var updatedDosh = false;
   var command;
 
-  //console.log(content[1].split("+").length - 1);
+  //console.log(mentions);
+  //console.log(bot.fetchUser(mentions.id));
 
   //verify correct syntax for the command
   if(content.length === 2) {
@@ -51,7 +52,6 @@ exports.run = function(msg, currentDosh) {
         userID: msg.author.id,
         user: msg.author.username,
         target: command[0],
-        direction: command[1],
         timeStamp: timeStamp
       });
     }
@@ -82,10 +82,12 @@ function updateDoshMap(target, direction, message, karmaMap) {
     var name = target;
     var user = new User(id, name);
     (direction === "+") ? user.addDosh() : user.removeDosh();
+    /*
     if(message.member.nickname != null) {
       console.log("Logging the "+message.member.nickname);
       user.setNickName(message.member.nickname);
     }
+    */
     karmaMap.set(id, user);
     return true;
   } else {
