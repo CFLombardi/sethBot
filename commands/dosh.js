@@ -73,10 +73,14 @@ function checkCurrentKarma(target, direction, karmaMap) {
 }
 
 function updateDoshMap(target, direction, message, karmaMap) {
+  console.log(message.member.nickname);
   var id = message.id;
   var name = target;
   var user = new User(id, name);
   (direction === "+") ? user.addDosh() : user.removeDosh();
+  if(typeof message.member.nickname != undefined) {
+    user.setNickName(message.member.nickname);
+  }
   karmaMap.set(id, user);
   return true;
 }
