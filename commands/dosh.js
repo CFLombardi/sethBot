@@ -13,6 +13,28 @@ exports.run = function(msg, currentDosh) {
   var target;
   var vote;
 
+/* I need to figure out where to put this
+
+  //A user can only adjust dosh one a target once per 5 minutes
+  for(var i = 0; i < messageHistory.length; i++) {
+      if(
+         (msg.author.username === messageHistory[i].user) &&
+         (command[0].toLowerCase() === messageHistory[i].target.toLowerCase()) &&
+         ((timeStamp - messageHistory[i].timeStamp) < 300000)
+        ) {
+          msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
+          return false;
+      }
+  }
+
+  messageHistory.push({
+    userID: msg.author.id,
+    target: command[0],
+    timeStamp: timeStamp
+  });
+*/
+  //console.log("hi");
+
   //Determine whether it's an upvote or a downvote
   if(content[1].endsWith("++")) {
     command = content[1].split("++");
@@ -29,14 +51,47 @@ exports.run = function(msg, currentDosh) {
   //make sure the command has valid targets
   target = validateTargets(msg, target);
 
-  if(target != false) {
+  if(target != false || target.length === 0) {
     mentions.forEach(function(value, key, mentions) {
-      console.log(value);
+      if(value.bot) {
+        msg.channel.send("What are you thinking bro?!  Don't feed the bots.");
+      } else {
+        var user = currentDosh.get(key);
+        if(user === undefined) {
+          user = new User(value.id, value.username);
+          currentDosh.set(value.id, user);
+        }
+        (vote === "+") ? user.addDosh() : user.removeDosh();
+      }
     });
-    console.log(mentions);
+
+    for(var i = 0; i < target.length; i++) {
+      var found;
+
+      if(target[i].startsWith("@")) {
+        target[i] = target[i].slice(1);
+      }
+
+      currentDosh.forEach(function(value, key, users) {
+        //if so update their dosh
+        if((target[i].toLowerCase() === value.name.toLowerCase())) {
+          (vote === "+") ? value.addDosh() : value.removeDosh();
+          found = true;
+        }
+      });
+
+      if(found != true) {
+        var name = target[i];
+        var user = new User(msg.id+i, name);
+        (vote === "+") ? user.addDosh() : user.removeDosh();
+        currentDosh.set(msg.id+i, user);
+      }
+    }
+  } else {
+    return target;
   }
 
-  return target;
+  return true;
 }
 
 //Take in the input from the user and message to reply if necessary
@@ -57,11 +112,10 @@ function validateTargets(message, input) {
 
   if(isValid != false) {
     var targets = input.split(" ");
-    console.log(targets);
-    for(var i = 0; i < targets.length; i++) {
+    var i = targets.length;
+    while(i--) {
       if(targets[i].startsWith("<@")) {
         targets.splice(i, 1);
-        console.log(targets);
       }
     }
     return targets;
@@ -69,89 +123,3 @@ function validateTargets(message, input) {
     return isValid;
   }
 }
-
-  //console.log(mentions);
-  //console.log(bot.fetchUser(mentions.id));
-
-/*
-  //verify correct syntax for the command
-  if(content.length === 2) {
-    //gather whether they are down voting or up voting
-    if(content[1].endsWith("++") && (content[1].split("+").length - 1) === 2) {
-      command = content[1].split("++");
-      command[1] = "+";
-    } else if (content[1].endsWith("--") && (content[1].split("-").length - 1) === 2) {
-      command = content[1].split("--");
-      command[1] = "-";
-    } else {
-      msg.channel.send("BREH!  Do you even syntax?!  Try something like '!dosh Seth++'");
-      return "false";
-    }
-
-    //user can only invoke this command on the same target once every 5 minutes
-    for(var i = 0; i < messageHistory.length; i++) {
-        if(
-           (msg.author.username === messageHistory[i].user) &&
-           (command[0].toLowerCase() === messageHistory[i].target.toLowerCase()) &&
-           ((timeStamp - messageHistory[i].timeStamp) < 300000)
-          ) {
-            msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
-            return "false";
-        }
-    }
-
-    //check to see if they already have dosh and update that count accordingly
-    updatedDosh = checkCurrentKarma(command[0], command[1], currentDosh);
-
-    if(!updatedDosh) {
-      updatedDosh = updateDoshMap(command[0], command[1], msg, currentDosh);
-    }
-
-    if(updatedDosh) {
-      messageHistory.push({
-        userID: msg.author.id,
-        user: msg.author.username,
-        target: command[0],
-        timeStamp: timeStamp
-      });
-    }
-  } else {
-    msg.channel.send("You better check some websites because that's just not right.  Try something like '!dosh Seth++'")
-    updatedDosh = "false";
-  }
-
-  return updatedDosh;
-*/
-
-/*
-//checks "dosh map" and returns true if they exist in the map
-function checkCurrentKarma(target, direction, karmaMap) {
-  var found;
-  karmaMap.forEach(function(value, key, users) {
-    //if so update their dosh
-    if((target.toLowerCase() === value.name.toLowerCase())) {
-      (direction === "+") ? value.addDosh() : value.removeDosh();
-      found = true;
-    }
-  });
-  return found;
-}
-
-function updateDoshMap(target, direction, message, karmaMap) {
-  if(target != "") {
-    var id = message.id;
-    var name = target;
-    var user = new User(id, name);
-    (direction === "+") ? user.addDosh() : user.removeDosh();
-    /*
-    if(message.member.nickname != null) {
-      console.log("Logging the "+message.member.nickname);
-      user.setNickName(message.member.nickname);
-    }
-    *//*
-    karmaMap.set(id, user);
-    return true;
-  } else {
-    message.channel.send("That's not a valid target bro.");
-  }
-*/

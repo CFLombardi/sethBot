@@ -51,11 +51,10 @@ seth.on("message", msg => {
 		{
       var needsUpdate = commands.dosh.run(msg, karmaMap);
 
-      /*
       if(needsUpdate === true) {
         save();
       }
-      */
+
 			var mentions = msg.mentions.users;
 			var outStr = "";
 			if(mentions.size ==0 && needsUpdate === "false")
