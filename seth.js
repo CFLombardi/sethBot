@@ -49,34 +49,39 @@ seth.on("message", msg => {
 	{
 		if(msg.content.toLowerCase().startsWith("!dosh"))
 		{
-      var needsUpdate = commands.dosh.run(msg, karmaMap, seth);
+      var needsUpdate = commands.dosh.run(msg, karmaMap);
       if(needsUpdate === true) {
         save();
       }
 
 			var mentions = msg.mentions.users;
 			var outStr = "";
-			if(mentions.size ==0 && needsUpdate === false)
+			if(mentions.size ==0 && needsUpdate === "false")
 			{
 				msg.channel.send("Are you on the green bro? Gotta mention someone\nLike \"!dosh @someone\"");
 			}
-			mentions.forEach( function(value,key,mentions) {
-				var user = karmaMap.get(key);
-        var outStrUser = (user.getNickName()) ? user.getNickName() : user.name;
-				if(user != undefined)
-				{
-					outStr += outStrUser + " has "+user.getCount()+ " dosh, Brah!\n";
-				}
-				else
-				{
-					outStr += value.username + " has no dosh.\n";
-				}
+
+      if(needsUpdate === false) {
+
+  			mentions.forEach( function(value,key,mentions) {
+  				var user = karmaMap.get(key);
+  				if(user != undefined)
+  				{
+  					outStr += user.name + " has "+user.getCount()+ " dosh, Brah!\n";
+  				}
+  				else
+  				{
+  					outStr += value.username + " has no dosh.\n";
+  				}
 
 
-			});
-			if(outStr!="")
-				msg.channel.send(outStr);
-		}
+  			});
+
+  			if(outStr!="") {
+          msg.channel.send(outStr);
+        }
+  		}
+
 		const collector = msg.createReactionCollector(
 		 (reaction, user) => (reaction.emoji.id==config.downEmoji || reaction.emoji.id==config.upEmoji) && !user.bot,
 		 { time: 43200000 }//12 hours for collection time before it dies.
@@ -84,7 +89,8 @@ seth.on("message", msg => {
 
 		);
 		trackCollector(msg, collector);
-	}
+	 }
+  }
 });
 
 seth.on("ready", () => {

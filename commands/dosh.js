@@ -2,18 +2,82 @@ const User = require("../GJUser.js");
 //this will track users who have invoked this command
 //for each message we will track the ID, author, timestamp, and target of the command
 var messageHistory = [];
+var badChars = ["+", "-", "*", "/", "\"", "\'"]
 
-exports.run = function(msg, currentDosh, bot) {
-  var content = msg.content.split(" ");
-  var timeStamp = Math.floor(msg.createdTimestamp/1000);
+exports.run = function(msg, currentDosh) {
+  var content = msg.content.split("!dosh");
+  //var timeStamp = Math.floor(msg.createdTimestamp/1000);
   var mentions = msg.mentions.users;
-  //var currentTime = Math.floor(Date.now()/1000);
   var updatedDosh = false;
   var command;
+  var target;
+  var vote;
+
+  //Determine whether it's an upvote or a downvote
+  if(content[1].endsWith("++")) {
+    command = content[1].split("++");
+    target = command[0].trim();
+    vote = "+";
+  } else if(content[1].endsWith("--")) {
+    command = content[1].split("--");
+    target = command[0].trim();
+    vote = "-";
+  } else {
+    target = content[1].trim();
+  }
+
+  /*
+  if(vote === undefined) {
+    console.log("howdy");
+  }
+  */
+
+  //make sure the command has valid targets
+  updatedDosh = validateTargets(msg, target);
+
+  /*
+  console.log(target);
+  console.log(updatedDosh);
+  console.log(vote);
+  */
+
+  if(updatedDosh) {
+    var input = target.split(" ");
+    console.log(input);
+    for(var i=0; i<input.length; i++) {
+
+    }
+  }
+
+  return updatedDosh;
+}
+
+function validateTargets(message, input) {
+  var isValid;
+
+  badChars.forEach(function(char) {
+    if(input.includes(char)) {
+      message.channel.send("Now you're just making up letters.  Take your 'special' characters and get out! GET OUT!!");
+      isValid = false;
+    }
+  });
+
+  if(input === "") {
+    message.channel.send("Sir.  Sir!  SIR!  You need to pick a valid target");
+    isValid = false;
+  }
+
+  if(isValid != false) {
+    return true;
+  } else {
+    return isValid;
+  }
+}
 
   //console.log(mentions);
   //console.log(bot.fetchUser(mentions.id));
 
+/*
   //verify correct syntax for the command
   if(content.length === 2) {
     //gather whether they are down voting or up voting
@@ -61,8 +125,9 @@ exports.run = function(msg, currentDosh, bot) {
   }
 
   return updatedDosh;
-}
+*/
 
+/*
 //checks "dosh map" and returns true if they exist in the map
 function checkCurrentKarma(target, direction, karmaMap) {
   var found;
@@ -87,10 +152,10 @@ function updateDoshMap(target, direction, message, karmaMap) {
       console.log("Logging the "+message.member.nickname);
       user.setNickName(message.member.nickname);
     }
-    */
+    *//*
     karmaMap.set(id, user);
     return true;
   } else {
     message.channel.send("That's not a valid target bro.");
   }
-}
+*/
