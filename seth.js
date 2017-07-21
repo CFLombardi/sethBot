@@ -50,10 +50,12 @@ seth.on("message", msg => {
 		if(msg.content.toLowerCase().startsWith("!dosh"))
 		{
       var needsUpdate = commands.dosh.run(msg, karmaMap);
+
+      /*
       if(needsUpdate === true) {
         save();
       }
-
+      */
 			var mentions = msg.mentions.users;
 			var outStr = "";
 			if(mentions.size ==0 && needsUpdate === "false")
@@ -61,7 +63,7 @@ seth.on("message", msg => {
 				msg.channel.send("Are you on the green bro? Gotta mention someone\nLike \"!dosh @someone\"");
 			}
 
-      if(needsUpdate === false) {
+      if(needsUpdate === "false") {
 
   			mentions.forEach( function(value,key,mentions) {
   				var user = karmaMap.get(key);

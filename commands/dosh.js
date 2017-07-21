@@ -8,7 +8,7 @@ exports.run = function(msg, currentDosh) {
   var content = msg.content.split("!dosh");
   //var timeStamp = Math.floor(msg.createdTimestamp/1000);
   var mentions = msg.mentions.users;
-  var updatedDosh = false;
+  var updateDosh;
   var command;
   var target;
   var vote;
@@ -23,35 +23,23 @@ exports.run = function(msg, currentDosh) {
     target = command[0].trim();
     vote = "-";
   } else {
-    target = content[1].trim();
+    return "false";
   }
-
-  /*
-  if(vote === undefined) {
-    console.log("howdy");
-  }
-  */
 
   //make sure the command has valid targets
-  updatedDosh = validateTargets(msg, target);
+  target = validateTargets(msg, target);
 
-  /*
-  console.log(target);
-  console.log(updatedDosh);
-  console.log(vote);
-  */
-
-  if(updatedDosh) {
-    var input = target.split(" ");
-    console.log(input);
-    for(var i=0; i<input.length; i++) {
-
-    }
+  if(target != false) {
+    mentions.forEach(function(value, key, mentions) {
+      console.log(value);
+    });
+    console.log(mentions);
   }
 
-  return updatedDosh;
+  return target;
 }
 
+//Take in the input from the user and message to reply if necessary
 function validateTargets(message, input) {
   var isValid;
 
@@ -68,7 +56,15 @@ function validateTargets(message, input) {
   }
 
   if(isValid != false) {
-    return true;
+    var targets = input.split(" ");
+    console.log(targets);
+    for(var i = 0; i < targets.length; i++) {
+      if(targets[i].startsWith("<@")) {
+        targets.splice(i, 1);
+        console.log(targets);
+      }
+    }
+    return targets;
   } else {
     return isValid;
   }
