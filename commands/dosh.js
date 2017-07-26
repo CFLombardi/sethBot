@@ -32,23 +32,23 @@ exports.run = function(msg, currentDosh) {
   if(target != false) {
     //A user can only adjust dosh on a target once per 5 minutes
     for(var i = 0; i < messageHistory.length; i++) {
-      if(msg.author.id === messageHistory[i].userID) {
-        if((msg.createdTimestamp - messageHistory[i].timeStamp) < 300000) {
-          for(var value of mentions) {
-            if(value[1].id === messageHistory[i].target) {
-              msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
-              return false;
-            }
+      if(msg.author.id === messageHistory[i].userID && (msg.createdTimestamp - messageHistory[i].timeStamp) < 300000) {
+        console.log("Checking mentions");
+        for(var value of mentions) {
+          if(value[1].id === messageHistory[i].target) {
+            msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
+            return false;
           }
-          //There's an infinite loop that happens here
-          //can't seem to figure out why
-          console.log(messageHistory.length);
-          console.log(messageHistory);
-          for(var i = 0; i < target.length; i++) {
-            if(target[i] != undefined && target[i].toLowerCase().slice(1) === messageHistory[i].target.toLowerCase()) {
-              msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
-              return false;
-            }
+        }
+
+        console.log("Checking targets");
+
+        for (var value of target) {
+          console.log(messageHistory[i]);
+          if(value != undefined && value.toLowerCase().slice(1) === messageHistory[i].target.toLowerCase()) {
+            console.log(value.toLowerCase().slice(1));
+            msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
+            return false;
           }
         }
       }
@@ -101,7 +101,7 @@ exports.run = function(msg, currentDosh) {
   } else {
     return target;
   }
-
+  msg.channel.send("You got it brah!");
   return true;
 }
 
