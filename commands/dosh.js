@@ -13,6 +13,14 @@ exports.run = function(msg, currentDosh) {
   var target;
   var vote;
 
+  //You can't vote on yourself
+  for (var value of mentions) {
+    if(value[1].id === msg.author.id) {
+      msg.channel.send("I respect the self love bro, but you can't vote for yourself.  Bad form!  SHAME!");
+      return false;
+    }
+  }
+
   //Determine whether it's an upvote or a downvote
   if(content[1].endsWith("++")) {
     command = content[1].split("++");
@@ -33,7 +41,7 @@ exports.run = function(msg, currentDosh) {
     //A user can only adjust dosh on a target once per 5 minutes
     for(var i = 0; i < messageHistory.length; i++) {
       if(msg.author.id === messageHistory[i].userID && (msg.createdTimestamp - messageHistory[i].timeStamp) < 300000) {
-        console.log("Checking mentions");
+        //console.log("Checking mentions");
         for(var value of mentions) {
           if(value[1].id === messageHistory[i].target) {
             msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
@@ -41,23 +49,26 @@ exports.run = function(msg, currentDosh) {
           }
         }
 
-        console.log("Checking targets");
+        //console.log("Checking targets");
 
-        for (var value of target) {
-          console.log(messageHistory[i]);
-          if(value != undefined && value.toLowerCase().slice(1) === messageHistory[i].target.toLowerCase()) {
-            console.log(value.toLowerCase().slice(1));
-            msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
-            return false;
+        if(target != null) {
+          for (var value of target) {
+            if(value != undefined && value.toLowerCase().slice(1) === messageHistory[i].target.toLowerCase()) {
+              msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
+              return false;
+            }
           }
         }
       }
     }
 
     if(mentions != null) {
+      var found;
+
       mentions.forEach(function(value, key, mentions) {
         if(value.bot) {
           msg.channel.send("What are you thinking bro?!  Don't feed the bots.");
+          found = false;
         } else {
           var user = currentDosh.get(key);
           if(user === undefined) {
@@ -72,6 +83,10 @@ exports.run = function(msg, currentDosh) {
           });
         }
       });
+
+      if(found === false) {
+        return found;
+      }
     }
 
     for(var i = 0; i < target.length; i++) {
