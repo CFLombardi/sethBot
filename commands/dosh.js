@@ -2,7 +2,7 @@ const User = require("../GJUser.js");
 //this will track users who have invoked this command
 //for each message we will track the ID, author, timestamp, and target of the command
 var messageHistory = [];
-var badChars = ["+", "-", "*", "/", "\"", "\'"]
+var badChars = ["+", "-", "*", "/", "\"", "\'", "$"]
 
 exports.run = function(msg, currentDosh) {
   var content = msg.content.split("!dosh");
@@ -10,66 +10,43 @@ exports.run = function(msg, currentDosh) {
   var mentions = msg.mentions.users;
   var updateDosh;
   var command;
-  var target;
+  var targets;
   var vote;
 
   //You can't vote on yourself
   for (var value of mentions) {
-    if(value[1].id === msg.author.id) {
+    if(value[0] === msg.author.id) {
       msg.channel.send("I respect the self love bro, but you can't vote for yourself.  Bad form!  SHAME!");
+      return false;
+    }
+
+    if(value[1].bot) {
+      msg.channel.send("What are you thinking bro?!  Don't feed the bots.");
       return false;
     }
   }
 
   //Determine whether it's an upvote or a downvote
   if(content[1].endsWith("++")) {
-    command = content[1].split("++");
-    target = command[0].trim();
+    content = content[1].split("++");
+    command = content[0].trim();
     vote = "+";
   } else if(content[1].endsWith("--")) {
-    command = content[1].split("--");
-    target = command[0].trim();
+    content = content[1].split("--");
+    command = content[0].trim();
     vote = "-";
   } else {
     return "false";
   }
 
   //make sure the command has valid targets
-  target = validateTargets(msg, target);
+  targets = validateTargets(msg, command);
 
-  if(target != false) {
-    //A user can only adjust dosh on a target once per 5 minutes
-    for(var i = 0; i < messageHistory.length; i++) {
-      if(msg.author.id === messageHistory[i].userID && (msg.createdTimestamp - messageHistory[i].timeStamp) < 300000) {
-        //console.log("Checking mentions");
-        for(var value of mentions) {
-          if(value[1].id === messageHistory[i].target) {
-            msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
-            return false;
-          }
-        }
-
-        //console.log("Checking targets");
-
-        if(target != null) {
-          for (var value of target) {
-            if(value != undefined && value.toLowerCase().slice(1) === messageHistory[i].target.toLowerCase()) {
-              msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
-              return false;
-            }
-          }
-        }
-      }
-    }
-
+  if(targets != false) {
     if(mentions != null) {
       var found;
 
       mentions.forEach(function(value, key, mentions) {
-        if(value.bot) {
-          msg.channel.send("What are you thinking bro?!  Don't feed the bots.");
-          found = false;
-        } else {
           var user = currentDosh.get(key);
           if(user === undefined) {
             user = new User(value.id, value.username);
@@ -81,7 +58,6 @@ exports.run = function(msg, currentDosh) {
             target: key,
             timeStamp: msg.createdTimestamp
           });
-        }
       });
 
       if(found === false) {
@@ -89,32 +65,32 @@ exports.run = function(msg, currentDosh) {
       }
     }
 
-    for(var i = 0; i < target.length; i++) {
+    for(var i = 0; i < targets.length; i++) {
       var found;
-      target[i] = target[i].slice(1);
+      targets[i] = targets[i].slice(1);
 
       currentDosh.forEach(function(value, key, users) {
         //if so update their dosh
-        if((target[i].toLowerCase() === value.name.toLowerCase())) {
+        if((targets[i].toLowerCase() === value.name.toLowerCase())) {
           (vote === "+") ? value.addDosh() : value.removeDosh();
           found = true;
         }
       });
 
       if(found != true) {
-        var name = target[i];
+        var name = targets[i];
         var user = new User(msg.id+i, name);
         (vote === "+") ? user.addDosh() : user.removeDosh();
         currentDosh.set(msg.id+i, user);
       }
       messageHistory.push({
         userID: msg.author.id,
-        target: target[i],
+        target: targets[i],
         timeStamp: msg.createdTimestamp
       });
     }
   } else {
-    return target;
+    return targets;
   }
   msg.channel.send("You got it brah!");
   return true;
@@ -122,44 +98,76 @@ exports.run = function(msg, currentDosh) {
 
 //Take in the input from the user and message to reply if necessary
 function validateTargets(message, input) {
-  var targets = input.split(" ");
+  var theTargets = input.split(" ");
   var isValid;
 
   if(input === "") {
     message.channel.send("Sir.  Sir!  SIR!  You need to pick a valid target");
-    isValid = false;
-    return isValid;
+    return false;
   }
 
   for(var char of badChars) {
     if(input.includes(char)) {
       message.channel.send("Now you're just making up letters.  Take your 'special' characters and get out! GET OUT!!");
-      isValid = false;
-      return isValid;
+      return false;
     }
   }
 
-  for(var i = 0; i < targets.length; i++) {
-    if(!targets[i].includes("@")) {
+  for(var i = 0; i < theTargets.length; i++) {
+    if(!theTargets[i].startsWith("@") &&
+       !theTargets[i].startsWith("<@") &&
+       !theTargets[i].startsWith("<@!")) {
       message.channel.send("Ah, ah, ah.  You didn't say the magic word");
-      isValid = false;
-      return isValid;
+      return false;
     }
   }
+
+  isValid = checkHistory(message, messageHistory, theTargets);
+
+  console.log(isValid);
 
   if(isValid != false) {
-    var i = targets.length;
+    var i = theTargets.length;
     while(i--) {
-      if(targets[i].startsWith("<@")) {
-        targets.splice(i, 1);
+      if(theTargets[i].startsWith("<@")) {
+        theTargets.splice(i, 1);
       }
     }
 
-    if(targets.length === 0) {
-      targets = true;
+    if(theTargets.length === 0) {
+      theTargets = true;
     }
-    return targets;
+    return theTargets;
   } else {
     return isValid;
   }
+}
+
+function checkHistory(msg, history, targets) {
+  var mentions = msg.mentions.users;
+  //A user can only adjust dosh on a target once per 5 minutes
+  for(var i = 0; i < history.length; i++) {
+    if(msg.author.id === history[i].userID && (msg.createdTimestamp - history[i].timeStamp) < 300000) {
+      //console.log("Checking mentions");
+      for(var value of mentions) {
+        if(value[1].id === history[i].target) {
+          msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
+          return false;
+        }
+      }
+
+      //console.log("Checking targets");
+
+      if(targets != null) {
+        for (var value of targets) {
+          if(value != undefined && value.toLowerCase().slice(1) === messageHistory[i].target.toLowerCase()) {
+            msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
+            return false;
+          }
+        }
+      }
+    }
+  }
+
+  return true;
 }
