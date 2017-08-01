@@ -42,32 +42,22 @@ exports.run = function(msg, currentDosh) {
   //validate the targets the user is trying to vote for
   targets = validateTargets(msg, command);
 
+  console.log(targets);
+
   if(targets != false) {
-    if(mentions != null) {
-      var found;
-
-      mentions.forEach(function(value, key, mentions) {
-          var user = currentDosh.get(key);
-          if(user === undefined) {
-            user = new User(value.id, value.username);
-            currentDosh.set(value.id, user);
-          }
-          (vote === "+") ? user.addDosh() : user.removeDosh();
-          messageHistory.push({
-            userID: msg.author.id,
-            target: key,
-            timeStamp: msg.createdTimestamp
-          });
-      });
-
-      if(found === false) {
-        return found;
-      }
-    }
-
+    var found;
     for(var i = 0; i < targets.length; i++) {
-      var found;
-      targets[i] = targets[i].slice(1);
+      if(!isNaN(targets[i])) {
+        for (var value of mentions) {
+          if(value[0] === targets[i]) {
+            //if target is a number we need to get the user information to add to the dosh
+          }
+        }
+      }
+      for(var value of currentDosh) {
+        console.log(value);
+        if(targets[i])
+      }
 
       currentDosh.forEach(function(value, key, users) {
         //if so update their dosh
@@ -120,62 +110,39 @@ function validateTargets(message, input) {
       message.channel.send("Ah, ah, ah.  You didn't say the magic word");
       return false;
     }
+
+    if(theTargets[i].startsWith("<@!")) {
+      theTargets[i] = theTargets[i].slice(3);
+      theTargets[i] = theTargets[i].replace(">", "");
+    } else if(theTargets[i].startsWith("<@")) {
+      theTargets[i] = theTargets[i].slice(2);
+      theTargets[i] = theTargets[i].replace(">", "");
+    } else if(theTargets[i].startsWith("@")) {
+      theTargets[i] = theTargets[i].slice(1);
+    }
   }
 
   isValid = checkHistory(message, theTargets);
 
-  if(isValid != false) {
-    var i = theTargets.length;
-    while(i--) {
-      if(theTargets[i].startsWith("<@")) {
-        theTargets.splice(i, 1);
-      }
-    }
-
-    if(theTargets.length === 0) {
-      theTargets = true;
-    }
+  if(isValid) {
     return theTargets;
   } else {
     return isValid;
   }
 }
 
+//A user can only adjust dosh on a target once per 30 minutes.  Returns true if they haven't voted for the target yet
 function checkHistory(msg, targets) {
-  var mentions = msg.mentions.users;
-  //A user can only adjust dosh on a target once per 5 minutes
   for(var i = 0; i < messageHistory.length; i++) {
-    if(msg.author.id === messageHistory[i].userID && (msg.createdTimestamp - messageHistory[i].timeStamp) < 300000) {
+    if(msg.author.id === messageHistory[i].userID && (msg.createdTimestamp - messageHistory[i].timeStamp) < 1800000) {
       for(var value of targets) {
-        if(value.startsWith("<@!")) {
-          value = value.slice(3);
-          value = value.replace(">", "");
-        } else if(value.startsWith("<@")) {
-          value = value.slice(2);
-          value = value.replace(">", "");
-        } else if (value.startsWith("@")) {
-          value = value.slice(1);
+        if(isNaN(value)) {
+          value = value.toLowerCase();
         }
-        console.log(value);
-        console.log(typeof value);
-      }
 
-
-      for(var value of mentions) {
-        if(value[1].id === messageHistory[i].target) {
+        if(value === messageHistory[i].target) {
           msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
           return false;
-        }
-      }
-
-      //console.log("Checking targets");
-
-      if(targets != null) {
-        for (var value of targets) {
-          if(value != undefined && value.toLowerCase().slice(1) === messageHistory[i].target.toLowerCase()) {
-            msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
-            return false;
-          }
         }
       }
     }
