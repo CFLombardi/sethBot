@@ -10,10 +10,6 @@ method.getName = function() {
     return this.name;
 };
 
-method.getNickName = function() {
-	return this.nickname;
-}
-
 method.getID = function() {
     return this.id;
 };
@@ -21,10 +17,6 @@ method.getID = function() {
 method.setCount = function(count) {
     this.totalCount = count;
 };
-
-method.setNickName = function(nickname) {
-	this.nickname = nickname;
-}
 
 method.getCount = function(){
 	return this.totalCount;
