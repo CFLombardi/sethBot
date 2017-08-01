@@ -13,7 +13,7 @@ exports.run = function(msg, currentDosh) {
   var targets;
   var vote;
 
-  //You can't vote on yourself
+  //You can't vote on yourself or bots
   for (var value of mentions) {
     if(value[0] === msg.author.id) {
       msg.channel.send("I respect the self love bro, but you can't vote for yourself.  Bad form!  SHAME!");
@@ -39,7 +39,7 @@ exports.run = function(msg, currentDosh) {
     return "false";
   }
 
-  //make sure the command has valid targets
+  //validate the targets the user is trying to vote for
   targets = validateTargets(msg, command);
 
   if(targets != false) {
@@ -122,9 +122,7 @@ function validateTargets(message, input) {
     }
   }
 
-  isValid = checkHistory(message, messageHistory, theTargets);
-
-  console.log(isValid);
+  isValid = checkHistory(message, theTargets);
 
   if(isValid != false) {
     var i = theTargets.length;
@@ -143,14 +141,28 @@ function validateTargets(message, input) {
   }
 }
 
-function checkHistory(msg, history, targets) {
+function checkHistory(msg, targets) {
   var mentions = msg.mentions.users;
   //A user can only adjust dosh on a target once per 5 minutes
-  for(var i = 0; i < history.length; i++) {
-    if(msg.author.id === history[i].userID && (msg.createdTimestamp - history[i].timeStamp) < 300000) {
-      //console.log("Checking mentions");
+  for(var i = 0; i < messageHistory.length; i++) {
+    if(msg.author.id === messageHistory[i].userID && (msg.createdTimestamp - messageHistory[i].timeStamp) < 300000) {
+      for(var value of targets) {
+        if(value.startsWith("<@!")) {
+          value = value.slice(3);
+          value = value.replace(">", "");
+        } else if(value.startsWith("<@")) {
+          value = value.slice(2);
+          value = value.replace(">", "");
+        } else if (value.startsWith("@")) {
+          value = value.slice(1);
+        }
+        console.log(value);
+        console.log(typeof value);
+      }
+
+
       for(var value of mentions) {
-        if(value[1].id === history[i].target) {
+        if(value[1].id === messageHistory[i].target) {
           msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
           return false;
         }
