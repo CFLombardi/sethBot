@@ -1,14 +1,12 @@
 const User = require("../GJUser.js");
 //this will track users who have invoked this command
-//for each message we will track the ID, author, timestamp, and target of the command
+//for each message we will track the userID, the target, and time invoked
 var messageHistory = [];
 var badChars = ["+", "-", "*", "/", "\"", "\'", "$"]
 
 exports.run = function(msg, currentDosh) {
   var content = msg.content.split("!dosh");
-  //var timeStamp = Math.floor(msg.createdTimestamp/1000);
   var mentions = msg.mentions.users;
-  var updateDosh;
   var command;
   var targets;
   var vote;
@@ -45,51 +43,62 @@ exports.run = function(msg, currentDosh) {
   console.log(targets);
 
   if(targets != false) {
-    var found;
+
     for(var i = 0; i < targets.length; i++) {
-      if(!isNaN(targets[i])) {
-        for (var value of mentions) {
-          if(value[0] === targets[i]) {
-            //if target is a number we need to get the user information to add to the dosh
-          }
+      var isTargetUN = isNaN(targets[i]);
+      var user;
+
+      user = checkDoshForTarget(targets[i], mentions, isTargetUN);
+
+      if(user === undefined) {
+        user = checkDoshForTarget(targets[i], currentDosh, isTargetUN);
+        if(user === undefined) {
+          user = new User(msg.id+i, targets[i]);
         }
-      }
-      for(var value of currentDosh) {
-        console.log(value);
-        if(targets[i])
+      } else {
+        user = new User(user.id, user.username);
       }
 
-      currentDosh.forEach(function(value, key, users) {
-        //if so update their dosh
-        if((targets[i].toLowerCase() === value.name.toLowerCase())) {
-          (vote === "+") ? value.addDosh() : value.removeDosh();
-          found = true;
-        }
-      });
+      (vote === "+") ? user.addDosh() : user.removeDosh();
+      currentDosh.set(user.getID(), user);
 
-      if(found != true) {
-        var name = targets[i];
-        var user = new User(msg.id+i, name);
-        (vote === "+") ? user.addDosh() : user.removeDosh();
-        currentDosh.set(msg.id+i, user);
-      }
+      console.log("target "+targets[i]+" added to history for user "+msg.author.username+" at "+msg.createdTimestamp);
+
       messageHistory.push({
         userID: msg.author.id,
         target: targets[i],
         timeStamp: msg.createdTimestamp
       });
+
+    }//for loop targets.length
+    msg.channel.send("You got it brah!");
+    return true;
+  } //if targets != false
+
+}//this is the end of the export
+
+function checkDoshForTarget(target, karmaMap, targetType) {
+  for(var value of karmaMap) {
+    if(targetType) {
+      if(target.toLowerCase() === value[1].name.toLowerCase()) {
+        return value[1];
+      }
+    } else {
+      if(target === value[0]) {
+        return value[1]
+      }
     }
-  } else {
-    return targets;
+    console.log("Done checking "+target);
   }
-  msg.channel.send("You got it brah!");
-  return true;
+  return undefined;
 }
 
 //Take in the input from the user and message to reply if necessary
 function validateTargets(message, input) {
   var theTargets = input.split(" ");
   var isValid;
+
+  //console.log(input);
 
   if(input === "") {
     message.channel.send("Sir.  Sir!  SIR!  You need to pick a valid target");
@@ -108,6 +117,11 @@ function validateTargets(message, input) {
        !theTargets[i].startsWith("<@") &&
        !theTargets[i].startsWith("<@!")) {
       message.channel.send("Ah, ah, ah.  You didn't say the magic word");
+      return false;
+    }
+
+    if(theTargets[i] === "@") {
+      message.channel.send("Look at this guy trying to pull a fast one.  I thought we were bros, bro...");
       return false;
     }
 
