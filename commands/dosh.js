@@ -2,7 +2,7 @@ const User = require("../GJUser.js");
 //this will track users who have invoked this command
 //for each message we will track the userID, the target, and time invoked
 var messageHistory = [];
-var badChars = ["+", "-", "*", "/", "\"", "\'", "$"]
+var badChars = ["@", "+", "-", "*", "/", "\\", "\"", "\'", "$"]
 
 exports.run = function(msg, currentDosh) {
   var content = msg.content.split("!dosh");
@@ -10,19 +10,6 @@ exports.run = function(msg, currentDosh) {
   var command;
   var targets;
   var vote;
-
-  //You can't vote on yourself or bots
-  for (var value of mentions) {
-    if(value[0] === msg.author.id) {
-      msg.channel.send("I respect the self love bro, but you can't vote for yourself.  Bad form!  SHAME!");
-      return false;
-    }
-
-    if(value[1].bot) {
-      msg.channel.send("What are you thinking bro?!  Don't feed the bots.");
-      return false;
-    }
-  }
 
   //Determine whether it's an upvote or a downvote
   if(content[1].endsWith("++")) {
@@ -37,6 +24,19 @@ exports.run = function(msg, currentDosh) {
     return "false";
   }
 
+  //You can't vote on yourself or bots
+  for (var value of mentions) {
+    if(value[0] === msg.author.id) {
+      msg.channel.send("I respect the self love bro, but you can't vote for yourself.  Bad form!  SHAME!");
+      return false;
+    }
+
+    if(value[1].bot) {
+      msg.channel.send("What are you thinking bro?!  Don't feed the bots.");
+      return false;
+    }
+  }
+
   //validate the targets the user is trying to vote for
   targets = validateTargets(msg, command);
 
@@ -48,10 +48,10 @@ exports.run = function(msg, currentDosh) {
       var isTargetUN = isNaN(targets[i]);
       var user;
 
-      user = checkDoshForTarget(targets[i], mentions, isTargetUN);
+      user = checkMapForTarget(targets[i], mentions, isTargetUN);
 
       if(user === undefined) {
-        user = checkDoshForTarget(targets[i], currentDosh, isTargetUN);
+        user = checkMapForTarget(targets[i], currentDosh, isTargetUN);
         if(user === undefined) {
           user = new User(msg.id+i, targets[i]);
         }
@@ -77,8 +77,8 @@ exports.run = function(msg, currentDosh) {
 
 }//this is the end of the export
 
-function checkDoshForTarget(target, karmaMap, targetType) {
-  for(var value of karmaMap) {
+function checkMapForTarget(target, collection, targetType) {
+  for(var value of collection) {
     if(targetType) {
       if(target.toLowerCase() === value[1].name.toLowerCase()) {
         return value[1];
@@ -88,7 +88,6 @@ function checkDoshForTarget(target, karmaMap, targetType) {
         return value[1]
       }
     }
-    console.log("Done checking "+target);
   }
   return undefined;
 }
@@ -98,20 +97,7 @@ function validateTargets(message, input) {
   var theTargets = input.split(" ");
   var isValid;
 
-  //console.log(input);
-
-  if(input === "") {
-    message.channel.send("Sir.  Sir!  SIR!  You need to pick a valid target");
-    return false;
-  }
-
-  for(var char of badChars) {
-    if(input.includes(char)) {
-      message.channel.send("Now you're just making up letters.  Take your 'special' characters and get out! GET OUT!!");
-      return false;
-    }
-  }
-
+  //check to see if targets are properly set
   for(var i = 0; i < theTargets.length; i++) {
     if(!theTargets[i].startsWith("@") &&
        !theTargets[i].startsWith("<@") &&
@@ -120,11 +106,7 @@ function validateTargets(message, input) {
       return false;
     }
 
-    if(theTargets[i] === "@") {
-      message.channel.send("Look at this guy trying to pull a fast one.  I thought we were bros, bro...");
-      return false;
-    }
-
+    //strip the identifying characters
     if(theTargets[i].startsWith("<@!")) {
       theTargets[i] = theTargets[i].slice(3);
       theTargets[i] = theTargets[i].replace(">", "");
@@ -134,7 +116,29 @@ function validateTargets(message, input) {
     } else if(theTargets[i].startsWith("@")) {
       theTargets[i] = theTargets[i].slice(1);
     }
-  }
+
+    //if any entry has special characters
+    for(var char of badChars) {
+      if(theTargets[i].includes(char)) {
+        message.channel.send("Now you're just making up letters.  Take your 'special' characters and get out! GET OUT!!");
+        return false;
+      }
+    }
+
+    //if there are more than one of the same target
+    for(var value of theTargets) {
+      if( (theTargets.includes(value)) && (theTargets.indexOf(value) != i) ) {
+        message.channel.send("A little too greedy there Oliver.  One at a time please.");
+        return false;
+      }
+    }
+
+    //if the target is blank
+    if(theTargets[i] === "") {
+      message.channel.send("Sir.  Sir!  SIR!  You need to pick a valid target");
+      return false;
+    }
+  } //end of for targets.length
 
   isValid = checkHistory(message, theTargets);
 
@@ -152,6 +156,7 @@ function checkHistory(msg, targets) {
       for(var value of targets) {
         if(isNaN(value)) {
           value = value.toLowerCase();
+          messageHistory[i].target = messageHistory[i].target.toLowerCase();
         }
 
         if(value === messageHistory[i].target) {
