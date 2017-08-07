@@ -75,11 +75,9 @@ exports.run = function(msg, currentDosh) {
 
 //A user can only adjust dosh on a target once per 30 minutes.  Returns true if they haven't voted for the target yet
 function checkHistory(msg, targets) {
-  console.log("History before");
-  console.log(messageHistory);
   for(var i = 0; i < messageHistory.length; i++) {
     if(msg.author.id === messageHistory[i].userID) {
-      if((msg.createdTimestamp - messageHistory[i].timeStamp) < 5000) { //1800000 is 30 minutes
+      if((msg.createdTimestamp - messageHistory[i].timeStamp) < 1800000) { //1800000 is 30 minutes
         for(var value of targets) {
           if(isNaN(value)) {
             value = value.toLowerCase();
@@ -96,8 +94,6 @@ function checkHistory(msg, targets) {
       }
     }
   }
-  console.log("History after");
-  console.log(messageHistory);
   return true;
 }
 
@@ -150,24 +146,14 @@ function validateTargets(message, input) {
       }
     }
 
+    //check to see if there are multiples of the same target
     for(var j=0; j<theTargets.length; j++) {
       if(theTargets[i] === theTargets[j] && i != j) {
         message.channel.send("A little too greedy there Oliver.  One at a time please.");
         return false;
       }
     }
-    //if there are more than one of the same target
-/*    for(var value of theTargets) {
-      console.log("This is the value "+value);
-      console.log("This is the target "+theTargets[i]);
-      console.log("Index "+theTargets.indexOf(value));
-      console.log(i);
-      if( (theTargets[i] = value) && (theTargets.indexOf(value) != i) ) {
-        message.channel.send("A little too greedy there Oliver.  One at a time please.");
-        return false;
-      }
-    }
-*/
+
     //if the target is blank
     if(theTargets[i] === "") {
       message.channel.send("Sir.  Sir!  SIR!  You need to pick a valid target");
@@ -175,6 +161,8 @@ function validateTargets(message, input) {
     }
   } //end of for targets.length
 
+  //check to see if the user has tried to vote for the same target within 30 minutes
+  //false means that they have, true means that they have not voted.
   isValid = checkHistory(message, theTargets);
 
   if(isValid) {
