@@ -40,8 +40,6 @@ exports.run = function(msg, currentDosh) {
   //validate the targets the user is trying to vote for
   targets = validateTargets(msg, command);
 
-  console.log(targets);
-
   if(targets != false) {
 
     for(var i = 0; i < targets.length; i++) {
@@ -62,8 +60,6 @@ exports.run = function(msg, currentDosh) {
       (vote === "+") ? user.addDosh() : user.removeDosh();
       currentDosh.set(user.getID(), user);
 
-      console.log("target "+targets[i]+" added to history for user "+msg.author.username+" at "+msg.createdTimestamp);
-
       messageHistory.push({
         userID: msg.author.id,
         target: targets[i],
@@ -77,6 +73,35 @@ exports.run = function(msg, currentDosh) {
 
 }//this is the end of the export
 
+//A user can only adjust dosh on a target once per 30 minutes.  Returns true if they haven't voted for the target yet
+function checkHistory(msg, targets) {
+  console.log("History before");
+  console.log(messageHistory);
+  for(var i = 0; i < messageHistory.length; i++) {
+    if(msg.author.id === messageHistory[i].userID) {
+      if((msg.createdTimestamp - messageHistory[i].timeStamp) < 5000) { //1800000 is 30 minutes
+        for(var value of targets) {
+          if(isNaN(value)) {
+            value = value.toLowerCase();
+            messageHistory[i].target = messageHistory[i].target.toLowerCase();
+          }
+
+          if(value === messageHistory[i].target) {
+            msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
+            return false;
+          }
+        }
+      } else {
+        messageHistory.splice(i);
+      }
+    }
+  }
+  console.log("History after");
+  console.log(messageHistory);
+  return true;
+}
+
+//check the map for a specific target and return that target from the map
 function checkMapForTarget(target, collection, targetType) {
   for(var value of collection) {
     if(targetType) {
@@ -127,7 +152,11 @@ function validateTargets(message, input) {
 
     //if there are more than one of the same target
     for(var value of theTargets) {
-      if( (theTargets.includes(value)) && (theTargets.indexOf(value) != i) ) {
+      console.log("This is the value "+value);
+      console.log("This is the target "+theTargets[i]);
+      console.log("Index "+theTargets.indexOf(value));
+      console.log(i);
+      if( (theTargets[i] = value) && (theTargets.indexOf(value) != i) ) {
         message.channel.send("A little too greedy there Oliver.  One at a time please.");
         return false;
       }
@@ -147,25 +176,4 @@ function validateTargets(message, input) {
   } else {
     return isValid;
   }
-}
-
-//A user can only adjust dosh on a target once per 30 minutes.  Returns true if they haven't voted for the target yet
-function checkHistory(msg, targets) {
-  for(var i = 0; i < messageHistory.length; i++) {
-    if(msg.author.id === messageHistory[i].userID && (msg.createdTimestamp - messageHistory[i].timeStamp) < 1800000) {
-      for(var value of targets) {
-        if(isNaN(value)) {
-          value = value.toLowerCase();
-          messageHistory[i].target = messageHistory[i].target.toLowerCase();
-        }
-
-        if(value === messageHistory[i].target) {
-          msg.channel.send("Bro, you've already voted.  GET THAT SHIT OUT OF HERE!");
-          return false;
-        }
-      }
-    }
-  }
-
-  return true;
 }
