@@ -2,7 +2,7 @@ const User = require("../GJUser.js");
 //this will track users who have invoked this command
 //for each message we will track the userID, the target, and time invoked
 var messageHistory = [];
-var badChars = ["@", "+", "-", "*", "/", "\\", "\"", "\'", "$"]
+var badChars = ["@", "+", "-", "*", "/", "\\", "\"", "\'", "$", "(", ")", "[", "]", "{", "}"]
 
 exports.run = function(msg, currentDosh) {
   var content = msg.content.split("!dosh");
