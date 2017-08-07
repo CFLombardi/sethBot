@@ -49,7 +49,7 @@ seth.on("message", msg => {
 	{
 		if(msg.content.toLowerCase().startsWith("!dosh"))
 		{
-      var needsUpdate = commands.dosh.run(msg, karmaMap, seth);
+      var needsUpdate = commands.dosh.run(msg, karmaMap);
 
       if(needsUpdate === true) {
         save();

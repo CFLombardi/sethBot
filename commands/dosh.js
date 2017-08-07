@@ -73,7 +73,8 @@ exports.run = function(msg, currentDosh) {
 
 }//this is the end of the export
 
-//A user can only adjust dosh on a target once per 30 minutes.  Returns true if they haven't voted for the target yet
+//A user can only adjust dosh on a target once per 30 minutes.
+//Returns true if they haven't voted for the target yet
 function checkHistory(msg, targets) {
   for(var i = 0; i < messageHistory.length; i++) {
     if(msg.author.id === messageHistory[i].userID) {
@@ -148,7 +149,7 @@ function validateTargets(message, input) {
 
     //check to see if there are multiples of the same target
     for(var j=0; j<theTargets.length; j++) {
-      if(theTargets[i] === theTargets[j] && i != j) {
+      if(i != j && theTargets[i] === theTargets[j]) {
         message.channel.send("A little too greedy there Oliver.  One at a time please.");
         return false;
       }
