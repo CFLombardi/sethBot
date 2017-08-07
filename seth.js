@@ -11,7 +11,7 @@ const {commands} = require("./commands");
 //This controls whether only the seth channel is listened to or all channels.
 //true	: Only seth channel.
 //false : All channels
-const developerMode = true;
+const developerMode = false;
 
 //Key: Discord User ID ::: Value: Discord
 const karmaMap = new Map();
