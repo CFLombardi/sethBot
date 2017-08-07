@@ -6,6 +6,7 @@ const config = require("./config.json");
 const User = require("./GJUser.js");
 const seth = new Discord.Client();
 require('events').EventEmitter.prototype._maxListeners = 0;
+const {commands} = require("./commands");
 
 //This controls whether only the seth channel is listened to or all channels.
 //true	: Only seth channel.
@@ -28,7 +29,7 @@ fs.readFile('savedCount.json', 'utf8', function readFileCallback(err, data){
     	var totalCount = obj.dosh[i].totalCount;
     	var user = new User(id,name);
     	user.setCount(totalCount);
-		karmaMap.set(id, user);
+		  karmaMap.set(id, user);
     }
 
 
@@ -46,30 +47,42 @@ seth.on("message", msg => {
 	var input = msg.content;
 	if((msg.channel.name == "sethbotdeveloper" || !developerMode) && !msg.author.bot )
 	{
-		if(msg.content.toLowerCase().includes("!dosh"))
+		if(msg.content.toLowerCase().startsWith("!dosh"))
 		{
+      var needsUpdate = commands.dosh.run(msg, karmaMap);
+
+      if(needsUpdate === true) {
+        save();
+      }
+
 			var mentions = msg.mentions.users;
 			var outStr = "";
-			if(mentions.size ==0)
+			if(mentions.size ==0 && needsUpdate === "false")
 			{
 				msg.channel.send("Are you on the green bro? Gotta mention someone\nLike \"!dosh @someone\"");
 			}
-			mentions.forEach( function(value,key,mentions) {
-				var user = karmaMap.get(key);
-				if(user != undefined)
-				{
-					outStr += user.name + " has "+user.getCount()+ " dosh, Brah!\n";
-				}
-				else
-				{
-					outStr += value.username + " has no dosh.\n";
-				}
+
+      if(needsUpdate === "false") {
+
+  			mentions.forEach( function(value,key,mentions) {
+  				var user = karmaMap.get(key);
+  				if(user != undefined)
+  				{
+  					outStr += user.name + " has "+user.getCount()+ " dosh, Brah!\n";
+  				}
+  				else
+  				{
+  					outStr += value.username + " has no dosh.\n";
+  				}
 
 
-			});
-			if(outStr!="")
-				msg.channel.send(outStr);
-		}
+  			});
+
+  			if(outStr!="") {
+          msg.channel.send(outStr);
+        }
+  		}
+
 		const collector = msg.createReactionCollector(
 		 (reaction, user) => (reaction.emoji.id==config.downEmoji || reaction.emoji.id==config.upEmoji) && !user.bot,
 		 { time: 43200000 }//12 hours for collection time before it dies.
@@ -77,7 +90,8 @@ seth.on("message", msg => {
 
 		);
 		trackCollector(msg, collector);
-	}
+	 }
+  }
 });
 
 seth.on("ready", () => {
@@ -90,19 +104,18 @@ process.on('exit',	end => console.log("later bro"));
 //catches ctrl+c event
 process.on('SIGINT', die =>{ console.log("peace");process.exit();});
 
-seth.login(config.token);
+seth.login(config.devToken);
 
 //Saves the Karma Map.
-function save()
-{
-var obj = {
-   dosh: []
-};
-karmaMap.forEach( function(value,key,karmaMap) {
-obj.dosh.push(value);
-});
-var json = JSON.stringify(obj);
-fs.writeFile('savedCount.json', json, 'utf8', null);
+function save() {
+  var obj = {
+     dosh: []
+  };
+  karmaMap.forEach( function(value,key,karmaMap) {
+  obj.dosh.push(value);
+  });
+  var json = JSON.stringify(obj);
+  fs.writeFile('savedCount.json', json, 'utf8', null);
 }
 
 //Takes in a collector and a message and sets up the tracker.
