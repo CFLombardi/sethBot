@@ -150,8 +150,14 @@ function validateTargets(message, input) {
       }
     }
 
+    for(var j=0; j<theTargets.length; j++) {
+      if(theTargets[i] === theTargets[j] && i != j) {
+        message.channel.send("A little too greedy there Oliver.  One at a time please.");
+        return false;
+      }
+    }
     //if there are more than one of the same target
-    for(var value of theTargets) {
+/*    for(var value of theTargets) {
       console.log("This is the value "+value);
       console.log("This is the target "+theTargets[i]);
       console.log("Index "+theTargets.indexOf(value));
@@ -161,7 +167,7 @@ function validateTargets(message, input) {
         return false;
       }
     }
-
+*/
     //if the target is blank
     if(theTargets[i] === "") {
       message.channel.send("Sir.  Sir!  SIR!  You need to pick a valid target");
