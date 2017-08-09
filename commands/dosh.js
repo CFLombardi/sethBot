@@ -40,6 +40,8 @@ exports.run = function(msg, currentDosh) {
   //validate the targets the user is trying to vote for
   targets = validateTargets(msg, command);
 
+  console.log(targets);
+
   if(targets != false) {
 
     for(var i = 0; i < targets.length; i++) {
@@ -54,7 +56,8 @@ exports.run = function(msg, currentDosh) {
           user = new User(msg.id+i, targets[i]);
         }
       } else {
-        user = new User(user.id, user.username);
+        user = checkMapForTarget(user.id, currentDosh, false);
+        //user = new User(user.id, user.username);
       }
 
       (vote === "+") ? user.addDosh() : user.removeDosh();
