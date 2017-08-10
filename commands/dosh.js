@@ -40,8 +40,6 @@ exports.run = function(msg, currentDosh) {
   //validate the targets the user is trying to vote for
   targets = validateTargets(msg, command);
 
-  console.log(targets);
-
   if(targets != false) {
 
     for(var i = 0; i < targets.length; i++) {
