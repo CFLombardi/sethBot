@@ -11,13 +11,13 @@ const {commands} = require("./commands");
 //This controls whether only the seth channel is listened to or all channels.
 //true	: Only seth channel.
 //false : All channels
-const developerMode = true;
+const developerMode = false;
 
 //Key: Discord User ID ::: Value: Discord
 const karmaMap = new Map();
 
 //Tries to load a savedCountJson... if that doesn't exist, it will throw an error but thats fine.. it wont hurt.
-fs.readFile('liveCount.json', 'utf8', function readFileCallback(err, data){
+fs.readFile('savedCount.json', 'utf8', function readFileCallback(err, data){
     if (err){
         console.log(err);
     } else {
@@ -104,7 +104,7 @@ process.on('exit',	end => console.log("later bro"));
 //catches ctrl+c event
 process.on('SIGINT', die =>{ console.log("peace");process.exit();});
 
-seth.login(config.devToken);
+seth.login(config.token);
 
 //Saves the Karma Map.
 function save() {
@@ -115,7 +115,7 @@ function save() {
   obj.dosh.push(value);
   });
   var json = JSON.stringify(obj);
-  fs.writeFile('liveCount.json', json, 'utf8', null); //needs to be savedCount
+  fs.writeFile('savedCount.json', json, 'utf8', null); //needs to be savedCount
 }
 
 //Takes in a collector and a message and sets up the tracker.
