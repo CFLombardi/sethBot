@@ -115,7 +115,7 @@ function save() {
   obj.dosh.push(value);
   });
   var json = JSON.stringify(obj);
-  fs.writeFile('savedCount.json', json, 'utf8', null);
+  fs.writeFile('savedCount.json', json, 'utf8', null); //needs to be savedCount
 }
 
 //Takes in a collector and a message and sets up the tracker.

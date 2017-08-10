@@ -54,7 +54,8 @@ exports.run = function(msg, currentDosh) {
           user = new User(msg.id+i, targets[i]);
         }
       } else {
-        user = new User(user.id, user.username);
+        user = checkMapForTarget(user.id, currentDosh, false);
+        //user = new User(user.id, user.username);
       }
 
       (vote === "+") ? user.addDosh() : user.removeDosh();
