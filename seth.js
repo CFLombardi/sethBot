@@ -82,15 +82,14 @@ seth.on("message", msg => {
           msg.channel.send(outStr);
         }
   		}
+	   }
+     const collector = msg.createReactionCollector(
+ 		 (reaction, user) => (reaction.emoji.id==config.downEmoji || reaction.emoji.id==config.upEmoji) && !user.bot,
+ 		 { time: 43200000 }//12 hours for collection time before it dies.
+      //{ time: 10000 }//10 seconds for collection time before it dies.
 
-		const collector = msg.createReactionCollector(
-		 (reaction, user) => (reaction.emoji.id==config.downEmoji || reaction.emoji.id==config.upEmoji) && !user.bot,
-		 { time: 43200000 }//12 hours for collection time before it dies.
-     //{ time: 10000 }//10 seconds for collection time before it dies.
-
-		);
-		trackCollector(msg, collector);
-	 }
+ 		);
+ 		trackCollector(msg, collector);
   }
 });
 
@@ -104,7 +103,7 @@ process.on('exit',	end => console.log("later bro"));
 //catches ctrl+c event
 process.on('SIGINT', die =>{ console.log("peace");process.exit();});
 
-seth.login(config.token);
+seth.login(config.devToken);
 
 //Saves the Karma Map.
 function save() {
@@ -115,7 +114,7 @@ function save() {
   obj.dosh.push(value);
   });
   var json = JSON.stringify(obj);
-  fs.writeFile('savedCount.json', json, 'utf8', null); //needs to be savedCount
+  fs.writeFile('savedCount.json', json, 'utf8', null);
 }
 
 //Takes in a collector and a message and sets up the tracker.
