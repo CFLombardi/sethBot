@@ -81,8 +81,8 @@ seth.on("message", msg => {
   			if(outStr!="") {
           msg.channel.send(outStr);
         }
-  		}
-	   }
+  		}//if needsUpdate = false
+    }//if msg contains !dosh
      const collector = msg.createReactionCollector(
  		 (reaction, user) => (reaction.emoji.id==config.downEmoji || reaction.emoji.id==config.upEmoji) && !user.bot,
  		 { time: 43200000 }//12 hours for collection time before it dies.
@@ -103,7 +103,7 @@ process.on('exit',	end => console.log("later bro"));
 //catches ctrl+c event
 process.on('SIGINT', die =>{ console.log("peace");process.exit();});
 
-seth.login(config.devToken);
+seth.login(config.token);
 
 //Saves the Karma Map.
 function save() {
