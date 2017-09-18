@@ -11,7 +11,7 @@ const {commands} = require("./commands");
 //This controls whether only the seth channel is listened to or all channels.
 //true	: Only seth channel.
 //false : All channels
-const developerMode = false;
+const developerMode = true;
 
 //Key: Discord User ID ::: Value: Discord
 const karmaMap = new Map();
@@ -54,34 +54,6 @@ seth.on("message", msg => {
       if(needsUpdate === true) {
         save();
       }
-
-			var mentions = msg.mentions.users;
-			var outStr = "";
-			if(mentions.size ==0 && needsUpdate === "false")
-			{
-				msg.channel.send("Are you on the green bro? Gotta mention someone\nLike \"!dosh @someone\"");
-			}
-
-      if(needsUpdate === "false") {
-
-  			mentions.forEach( function(value,key,mentions) {
-  				var user = karmaMap.get(key);
-  				if(user != undefined)
-  				{
-  					outStr += user.name + " has "+user.getCount()+ " dosh, Brah!\n";
-  				}
-  				else
-  				{
-  					outStr += value.username + " has no dosh.\n";
-  				}
-
-
-  			});
-
-  			if(outStr!="") {
-          msg.channel.send(outStr);
-        }
-  		}//if needsUpdate = false
     }//if msg contains !dosh
      const collector = msg.createReactionCollector(
  		 (reaction, user) => (reaction.emoji.id==config.downEmoji || reaction.emoji.id==config.upEmoji) && !user.bot,
@@ -103,7 +75,7 @@ process.on('exit',	end => console.log("later bro"));
 //catches ctrl+c event
 process.on('SIGINT', die =>{ console.log("peace");process.exit();});
 
-seth.login(config.token);
+seth.login(config.devToken);
 
 //Saves the Karma Map.
 function save() {
