@@ -21,7 +21,35 @@ exports.run = function(msg, currentDosh) {
     command = content[0].trim();
     vote = "-";
   } else {
-    return "false";
+    var target = validateTargets(msg, content[1].trim());
+    var outStr;
+    if(target != false && target.length === 1) {
+      currentDosh.forEach(function(value, key, dosh) {
+        if(isNaN(target)) {
+          if(value.name.toLowerCase() === target[0].toLowerCase()) {
+            outStr = value.name+" has "+value.getCount()+" dosh, Brah!\n";
+          }
+        } else {
+          if(key === target[0]) {
+            outStr = value.name+" has "+value.getCount()+" dosh, Brah!\n";
+          }
+        }
+      });
+
+      if(outStr === undefined){
+        if(!isNaN(target)) {
+          mentions.forEach(function(value, key, mentions) {
+            outStr = value.username+" has no dosh";
+          });
+        } else {
+          outStr = target[0]+" has no dosh";
+        }
+      }
+      msg.channel.send(outStr);
+    } else if(target.length > 1) {
+      msg.channel.send("One at a time broseph.");
+    }
+    return false;
   }
 
   //You can't vote on yourself or bots
@@ -40,7 +68,11 @@ exports.run = function(msg, currentDosh) {
   //validate the targets the user is trying to vote for
   targets = validateTargets(msg, command);
 
-  if(targets != false) {
+  //check to see if the user has tried to vote for the same target within 30 minutes
+  //false means that they have, true means that they have not voted.
+  var isValid = checkHistory(msg, targets);
+
+  if(isValid != false) {
 
     for(var i = 0; i < targets.length; i++) {
       var isTargetUN = isNaN(targets[i]);
@@ -118,7 +150,6 @@ function checkMapForTarget(target, collection, targetType) {
 //Take in the input from the user and message to reply if necessary
 function validateTargets(message, input) {
   var theTargets = input.split(" ");
-  var isValid;
 
   //check to see if targets are properly set
   for(var i = 0; i < theTargets.length; i++) {
@@ -163,13 +194,6 @@ function validateTargets(message, input) {
     }
   } //end of for targets.length
 
-  //check to see if the user has tried to vote for the same target within 30 minutes
-  //false means that they have, true means that they have not voted.
-  isValid = checkHistory(message, theTargets);
+  return theTargets;
 
-  if(isValid) {
-    return theTargets;
-  } else {
-    return isValid;
-  }
 }
