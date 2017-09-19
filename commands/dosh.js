@@ -70,7 +70,11 @@ exports.run = function(msg, currentDosh) {
 
   //check to see if the user has tried to vote for the same target within 30 minutes
   //false means that they have, true means that they have not voted.
-  var isValid = checkHistory(msg, targets);
+  if(targets != false) {
+    var isValid = checkHistory(msg, targets);
+  } else {
+    return false;
+  }
 
   if(isValid != false) {
 
