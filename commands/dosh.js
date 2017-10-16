@@ -25,13 +25,13 @@ exports.run = function(msg, currentDosh) {
     var outStr;
     if(target != false && target.length === 1) {
       currentDosh.forEach(function(value, key, dosh) {
-        if(isNaN(target)) {
+        if(isNaN(target[0])) {
           if(value.name.toLowerCase() === target[0].toLowerCase()) {
-            outStr = value.name+" has "+value.getCount()+" dosh, Brah!\n";
+            outStr = value.name+" has "+value.getCount()+" dosh, brah!\n";
           }
         } else {
           if(key === target[0]) {
-            outStr = value.name+" has "+value.getCount()+" dosh, Brah!\n";
+            outStr = value.name+" has "+value.getCount()+" dosh, brah!\n";
           }
         }
       });
@@ -39,10 +39,10 @@ exports.run = function(msg, currentDosh) {
       if(outStr === undefined){
         if(!isNaN(target)) {
           mentions.forEach(function(value, key, mentions) {
-            outStr = value.username+" has no dosh";
+            outStr = value.username+" has no dosh.";
           });
         } else {
-          outStr = target[0]+" has no dosh";
+          outStr = target[0]+" has no dosh.";
         }
       }
       msg.channel.send(outStr);
@@ -76,22 +76,25 @@ exports.run = function(msg, currentDosh) {
     return false;
   }
 
-  if(isValid != false) {
-
+  if(isValid) {
     for(var i = 0; i < targets.length; i++) {
       var isTargetUN = isNaN(targets[i]);
       var user;
 
-      user = checkMapForTarget(targets[i], mentions, isTargetUN);
-
-      if(user === undefined) {
+      if(isTargetUN) {
         user = checkMapForTarget(targets[i], currentDosh, isTargetUN);
         if(user === undefined) {
           user = new User(msg.id+i, targets[i]);
         }
       } else {
-        user = checkMapForTarget(user.id, currentDosh, false);
-        //user = new User(user.id, user.username);
+        user = checkMapForTarget(targets[i], mentions, isTargetUN);
+        var tempUser = checkMapForTarget(user.id, currentDosh, isTargetUN);
+
+        if(tempUser === undefined) {
+          user = new User(user.id, user.username);
+        } else {
+          user = tempUser;
+        }
       }
 
       (vote === "+") ? user.addDosh() : user.removeDosh();
@@ -106,7 +109,7 @@ exports.run = function(msg, currentDosh) {
     }//for loop targets.length
     msg.channel.send("You got it brah!");
     return true;
-  } //if targets != false
+  } //if isValid
 
 }//this is the end of the export
 
@@ -160,7 +163,7 @@ function validateTargets(message, input) {
     if(!theTargets[i].startsWith("@") &&
        !theTargets[i].startsWith("<@") &&
        !theTargets[i].startsWith("<@!")) {
-      message.channel.send("Ah, ah, ah.  You didn't say the magic word");
+      message.channel.send("Ah, ah, ah.  You didn't say the magic word.");
       return false;
     }
 
@@ -193,7 +196,7 @@ function validateTargets(message, input) {
 
     //if the target is blank
     if(theTargets[i] === "") {
-      message.channel.send("Sir.  Sir!  SIR!  You need to pick a valid target");
+      message.channel.send("Sir.  Sir!  SIR!  You need to pick a valid target.");
       return false;
     }
   } //end of for targets.length
