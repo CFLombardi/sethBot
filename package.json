@@ -1,0 +1,28 @@
+{
+  "name": "Seth Bot",
+  "version": "0.2.0",
+  "description": "The Good Job! Discord Server Bot",
+  "main": "seth.js",
+  "scripts": {
+    "start": "node seth.js"
+  },
+  "dependencies": {
+    "discord.js": "^11.2.0"
+  },
+  "engines": {
+    "node": "^8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CFLombardi/sethBot"
+  },
+  "keywords": [
+    "Discord",
+    "bot",
+    "Good Job"
+  ],
+  "author": "CFLombardi",
+  "contributors": [
+    "Kydane <kydanethediplomat@gmail.com>"
+  ]
+}
