@@ -1,5 +1,5 @@
 {
-  "name": "Seth Bot",
+  "name": "seth-bot",
   "version": "0.2.0",
   "description": "The Good Job! Discord Server Bot",
   "main": "seth.js",
