@@ -1,4 +1,5 @@
 node_modules/
+soundClips
 config.json
 savedCount.json
 npm-debug.log
