@@ -30,15 +30,15 @@ seth.on("message", msg => {
   }
 });
 
-for (var property in commands){
+seth.on("ready", () => {
+	console.log("Hur dur, my name's Seth!");
+	for (var property in commands){
 	if(typeof commands[property].init === "function"){
-		commands[property].init(config);
+		commands[property].init(seth, config);
 	}
   		
 }
-
-seth.on("ready", () => {
-	console.log("Hur dur, my name's Seth!");
+	
 });
 
 //do something when app is closing
