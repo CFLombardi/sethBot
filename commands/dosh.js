@@ -11,24 +11,21 @@ var badChars = ["@", "+", "-", "*", "/", "\\", "\"", "\'", "$", "(", ")", "[", "
 //Key: Discord User ID ::: Value: Discord
 const karmaMap = new Map();
 
-//Tries to load a savedCountJson... if that doesn't exist, it will throw an error but thats fine.. it wont hurt.
-fs.readFile('savedCount.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        console.log(err);
-    } else {
-    obj = JSON.parse(data); //now it an object
-    for(var i in obj.dosh)
-    {
-      var id = obj.dosh[i].id;
-      var name = obj.dosh[i].name;
-      var totalCount = obj.dosh[i].totalCount;
-      var user = new User(id,name);
-      user.setCount(totalCount);
-      karmaMap.set(id, user);
-    }
+function updateKarmaMap(){  
+  //Tries to load a savedCountJson... if that doesn't exist, it will throw an error but thats fine.. it wont hurt.
+  var file = fs.readFileSync('savedCount.json', 'utf8');
+  var obj = JSON.parse(file); //now it an object
+  for(var i in obj.dosh)
+  {
+    var id = obj.dosh[i].id;
+    var name = obj.dosh[i].name;
+    var totalCount = obj.dosh[i].totalCount;
+    var user = new User(id,name);
+    user.setCount(totalCount);
+    karmaMap.set(id, user);
+  } 
+}
 
-
-}});
 
 //Key: messageid ::: Value: collection<integer> (Discord UserIDs of members who reacted to a message )
 const usersWhoReacted = new Map();
@@ -42,6 +39,8 @@ exports.messageFired = function(config,msg) {
 
 
 exports.run = function(config, msg) {
+  //lazy update of karma map.
+  updateKarmaMap();
   var content = msg.content.split("!dosh");
   var mentions = msg.mentions.users;
   var command;

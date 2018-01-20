@@ -1,5 +1,7 @@
 const doshCommand = require("./dosh");
+const leaderBoardCommand = require("./leaderboard.js")
 
 exports.commands = {
-  dosh: doshCommand
+  dosh: doshCommand, 
+  leaderboard: leaderBoardCommand
 }
