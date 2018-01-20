@@ -37,8 +37,7 @@ exports.init = function(config){
 	app.post('/seth/twitch', function(req, res) {
 				var url = require('url');
 		var url_parts = url.parse(req.url, true);
-		var challenge = url_parts.query['hub.challenge'];
-		console.log(challenge);
+		console.log(url_parts);
 	  console.log(req.body);
 	  console.log("something hit me with a post :(");
 	  res.sendStatus(200);
