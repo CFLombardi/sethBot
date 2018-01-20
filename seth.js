@@ -9,7 +9,7 @@ const {commands} = require("./commands");
 //This controls whether only the seth channel is listened to or all channels.
 //true	: Only seth channel.
 //false : All channels
-const developerMode = false;
+const developerMode = true;
 
 seth.on("message", msg => {
 
@@ -30,6 +30,13 @@ seth.on("message", msg => {
   }
 });
 
+for (var property in commands){
+	if(typeof commands[property].init === "function"){
+		commands[property].init(config);
+	}
+  		
+}
+
 seth.on("ready", () => {
 	console.log("Hur dur, my name's Seth!");
 });
@@ -40,4 +47,4 @@ process.on('exit',	end => console.log("later bro"));
 //catches ctrl+c event
 process.on('SIGINT', die =>{ console.log("peace");process.exit();});
 
-seth.login(config.token);
+seth.login(config.devToken);
