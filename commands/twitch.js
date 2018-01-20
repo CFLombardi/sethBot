@@ -22,7 +22,10 @@ exports.init = function(config){
 	var express = require('express');
 	var app = express();
 	app.use(bodyParser.json());
-	app.get('/seth/twitch', function(req, res) {
+	app.get('/seth/twitch', function(req, res) { 
+		var url = require('url');
+		var url_parts = url.parse(req.url, true);
+		console.log(url_parts);
 	  //console.log(req.body);
 	  console.log("something hit me with a get :(");
 	  res.sendStatus(200);
@@ -36,7 +39,7 @@ exports.init = function(config){
 	console.log('Listening on port 3001...');
 	clientID = config.client_id;
 	clientSecret = config.client_secret;
-	setUpKyleSubscription(config);
+	//setUpKyleSubscription(config);
 }
 
 function setUpKyleSubscription(config){
