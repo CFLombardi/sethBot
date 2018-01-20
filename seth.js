@@ -9,7 +9,7 @@ const {commands} = require("./commands");
 //This controls whether only the seth channel is listened to or all channels.
 //true	: Only seth channel.
 //false : All channels
-const developerMode = true;
+const developerMode = false;
 
 seth.on("message", msg => {
 
@@ -40,4 +40,4 @@ process.on('exit',	end => console.log("later bro"));
 //catches ctrl+c event
 process.on('SIGINT', die =>{ console.log("peace");process.exit();});
 
-seth.login(config.devToken);
+seth.login(config.token);

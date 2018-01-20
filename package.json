@@ -1,6 +1,6 @@
 {
   "name": "seth-bot",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The Good Job! Discord Server Bot",
   "main": "seth.js",
   "scripts": {
