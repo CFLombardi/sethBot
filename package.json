@@ -1,6 +1,6 @@
 {
   "name": "seth-bot",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "The Good Job! Discord Server Bot",
   "main": "seth.js",
   "scripts": {
@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "discord.js": "^11.2.0",
-    "collections": "^5.0.7"
+    "collections": "^5.0.7",
+    "random-boolean": "1.0.0",
+    "xml2js" : "0.4.19"
   },
   "engines": {
     "node": "^8.0.0"
