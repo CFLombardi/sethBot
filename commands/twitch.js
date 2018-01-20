@@ -49,11 +49,11 @@ exports.init = function(seth, config){
 	app.post('/seth/twitch', function(req, res) {
 		var url_parts = url.parse(req.url, true);
 		console.log(url_parts);
-		body = req.body.data;
+		var data = req.body.data;
 		if(typeof data[0] == "undefined") {
 			console.log("something just ended... we can ignore it.");
 		}else{
-			channel.send(JSON.stringify(data[0]));
+			channel.send("Recieved from twitch: "+JSON.stringify(data[0]));
 		}
 			
 		console.log("something hit me with a post :]");
