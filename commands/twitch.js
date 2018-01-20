@@ -24,7 +24,12 @@ exports.init = function(config){
 	app.use(bodyParser.json());
 	app.get('/seth/twitch', function(req, res) {
 	  //console.log(req.body);
-	  console.log("something hit me :(");
+	  console.log("something hit me with a get :(");
+	  res.sendStatus(200);
+	});
+	app.post('/seth/twitch', function(req, res) {
+	  console.log(req.body);
+	  console.log("something hit me with a post :(");
 	  res.sendStatus(200);
 	});
 	app.listen(3001);
