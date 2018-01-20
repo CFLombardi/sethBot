@@ -22,8 +22,9 @@ exports.init = function(config){
 	var express = require('express');
 	var app = express();
 	app.use(bodyParser.json());
-	app.post('/seth/twitch', function(req, res) {
-	  console.log(req.body);
+	app.get('/seth/twitch', function(req, res) {
+	  //console.log(req.body);
+	  console.log("something hit me :(");
 	  res.sendStatus(200);
 	});
 	app.listen(3001);
@@ -35,9 +36,26 @@ exports.init = function(config){
 
 function setUpKyleSubscription(config){
 
-	getAccessToken(function(accessToken){
-		console.log(accessToken);
-	});
+	// getAccessToken(function(accessToken){
+	var options = {
+	  host: "api.twitch.tv",
+	  port: 443,
+	  path: '/helix/webhooks/hub?hub.mode=subscribe&hub.topic=https://api.twitch.tv/helix/streams?user_id=39385710&hub.callback=http://kydanespace.com:3001/seth/twitch&hub.lease_seconds=120',
+	  method: 'POST',
+	    headers: {
+		    'Client-ID': clientID
+		  }
+	};
+
+	https.request(options, function(res) {
+		res.setEncoding('utf8');
+		res.on('data', function (chunk) {
+			console.log(JSON.parse(chunk));
+  		});
+	}).end();
+
+	// 	console.log(accessToken);
+	// });
 }
 
 function getAccessToken(token){
