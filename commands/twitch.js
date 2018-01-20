@@ -25,11 +25,11 @@ exports.init = function(config){
 	app.get('/seth/twitch', function(req, res) { 
 		var url = require('url');
 		var url_parts = url.parse(req.url, true);
-	  res.write(url_parts.query['hub.challenge']);
-
-		console.log(url_parts);
-	  //console.log(req.body);
-	  console.log("something hit me with a get :(");
+		var challenge = url_parts.query['hub.challenge'];
+		  res.writeHead(200);
+		  res.write(challenge);
+		  res.end();
+		  console.log("something hit me with a get :(");
 	});
 	app.post('/seth/twitch', function(req, res) {
 	  console.log(req.body);
@@ -40,7 +40,7 @@ exports.init = function(config){
 	console.log('Listening on port 3001...');
 	clientID = config.client_id;
 	clientSecret = config.client_secret;
-	// setUpKyleSubscription(config);
+	//setUpKyleSubscription(config);
 }
 
 function setUpKyleSubscription(config){
