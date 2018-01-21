@@ -185,7 +185,7 @@ function setUpSubscription(names, subVal, pair){
 }
 
 function postNotification(data){
-	channel.send("!!! TWITCH NOTIFICATION: "+userIDMap.get(data[0].id).display_name+" has gone live. !!!"));
+	channel.send("!!! TWITCH NOTIFICATION: "+userIDMap.get(data[0].id).display_name+" has gone live. !!!");
 
 }
 
