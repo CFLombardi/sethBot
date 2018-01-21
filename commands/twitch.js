@@ -191,7 +191,7 @@ function subscribe(subVal, userid, pair){
 	var options = {
 		host: "api.twitch.tv",
 		port: 443,
-		path: '/helix/webhooks/hub?hub.mode='+subVal+'&hub.topic=https://api.twitch.tv/helix/streams?user_id='+userid+'&hub.callback='+host+':'+port+path+'&hub.lease_seconds=172800',
+		path: '/helix/webhooks/hub?hub.mode='+subVal+'&hub.topic=https://api.twitch.tv/helix/streams?user_id='+userid+'&hub.callback='+host+':'+port+path+'&hub.lease_seconds=172800&api_version=5',
 		method: 'POST',
 		headers: {
 		    'Client-ID': clientID
