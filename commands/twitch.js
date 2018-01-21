@@ -14,6 +14,7 @@ require("collections/listen/array-changes");
 const userIDMap = new Map();
 
 var channel, 
+	permission,
 	clientID,
 	clientSecret,
 	host,
@@ -26,6 +27,10 @@ exports.run = function(config, msg) {
 	var command = msg.content.split(/(\s+)/).filter( function(e) { return e.trim().length > 0; } );
 	//we can assume command[0] is useless.
 	if(command[1].toLowerCase() == "add"){
+		if(!checkPermission(msg)){
+			console.log("should have returned here");
+			return;
+		}
 		var username = command[2];
 		if(typeof username == "undefined"){
 			msg.channel.send("Gotta include a name. !twitch add [twitchusername]");
@@ -39,6 +44,9 @@ exports.run = function(config, msg) {
 
 	}
 	else if(command[1].toLowerCase() == "remove"){
+		if(!checkPermission(msg)){
+			return;
+		}
 		var username = command[2];
 		var foundInMap = false;
 		if(typeof username == "undefined"){
@@ -90,6 +98,7 @@ exports.init = function(seth, config){
 	host = config.twitch.twitch_callback_host;
 	port = config.twitch.twitch_callback_port;
 	path = config.twitch.twitch_callback_path;
+	permission = config.twitch.permission_groups;
 
 
 	console.log("Twitch Webook callback initializing...");
@@ -121,7 +130,7 @@ exports.init = function(seth, config){
 	app.listen(3001);
 	console.log('Listening on port 3001...');
 
-	updateAll();
+	// updateAll();
 	new CronJob('0 0 2 * * * ', function() {
 		console.log("updating twitch");
 		updateAll();
@@ -240,4 +249,17 @@ function getSubs(){
   if(typeof file === "undefined") return [];
   return JSON.parse(file); //now it an object
 
+}
+
+function checkPermission(msg){
+	var hasRole = false;
+	for(var i in permission){
+		if(msg.member.roles.has(permission[i])){
+			hasRole = true;
+		}
+	}
+	if(!hasRole){
+		msg.channel.send("You do not have permission to use this command");
+	}
+	return hasRole;
 }
