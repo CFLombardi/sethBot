@@ -185,11 +185,11 @@ function setUpSubscription(names, subVal, pair){
 }
 
 function postNotification(data){
+	channel.send("!!! TWITCH NOTIFICATION: "+userIDMap.get(data[0].id).display_name+" has gone live. !!!"));
 
 }
 
 function subscribe(subVal, userid, pair){
-	console.log('/helix/webhooks/hub?hub.mode='+subVal+'&hub.topic=https://api.twitch.tv/helix/streams?user_id='+userid+'&hub.callback='+host+':'+port+path+'&hub.lease_seconds=172800');
 	var options = {
 		host: "api.twitch.tv",
 		port: 443,
