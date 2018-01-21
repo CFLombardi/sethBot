@@ -130,13 +130,12 @@ exports.init = function(seth, config){
 	app.listen(3001);
 	console.log('Listening on port 3001...');
 
-	// updateAll();
+	updateAll();
 	new CronJob('0 0 2 * * * ', function() {
 		console.log("updating twitch");
 		updateAll();
 	}, null, true, 'America/New_York');
 	
-	// }
 }
 
 function updateAll(){
