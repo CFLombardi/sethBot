@@ -198,7 +198,8 @@ exports.init = function(bot, config){
 		if(typeof data[0] == "undefined") {
 			console.log("something just ended... we can ignore it.");
 		}else{
-			if(seenIDs.includes(data[0].id)){
+			console.log("posted "+data[0]);
+			if(!seenIDs.includes(data[0].id)){
 				postNotification(data[0]);
 				seenIDs.push(data[0].id);	
 			}
