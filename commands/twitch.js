@@ -124,7 +124,7 @@ exports.init = function(bot, config){
 	if (!fs.existsSync(dir)){
 	    fs.mkdirSync(dir);
 	}
-	this.seth = bot;
+	seth = bot;
 	channels = readChannels();
 	//get the Client ID and Client Secret
 	clientID = config.twitch.twitch_client_id;
