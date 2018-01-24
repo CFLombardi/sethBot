@@ -13,7 +13,7 @@ require("collections/listen/array-changes");
 //Key: Twitch User ID ::: Value: Discord Name
 const userIDMap = new Map();
 
-var channel, 
+var channels, 
 	permission,
 	clientID,
 	clientSecret,
@@ -28,7 +28,6 @@ exports.run = function(config, msg) {
 	//we can assume command[0] is useless.
 	if(command[1].toLowerCase() == "add"){
 		if(!checkPermission(msg)){
-			console.log("should have returned here");
 			return;
 		}
 		var username = command[2];
@@ -78,7 +77,29 @@ exports.run = function(config, msg) {
 			return;
 		}
 		msg.channel.send("I'm watching: \n"+values.join("\n"));
-	}else{
+	}else if(command[1].toLowerCase() == "listen"){
+		if(!checkPermission(msg)){
+			return;
+		}
+		var id = msg.channel.id;
+		if(!channels.includes(id)){
+			channels.push(id);
+			saveChannels();
+		}
+
+	}else if(command[1].toLowerCase() == "unlisten"){
+		if(!checkPermission(msg)){
+			return;
+		}
+		var id = msg.channel.id;
+		var index = channels.findIndex(id);
+		if(typeof index != 'undefined' && index > -1){
+			channels.splice(index, 1);
+			saveChannels();
+		}
+		
+		
+	}else {
 		msg.channel.send("Sorry bro. I only accept \"add\", \"remove\" or \"list\"")
 	}
 
@@ -91,7 +112,7 @@ exports.messageFired = function(config,msg) {
 exports.init = function(seth, config){
 	if(inited)return;
 	inited = true;
-	channel = seth.channels.get("309108850039062538");
+	channels = readChannels();seth.channels.get("309108850039062538");
 	//get the Client ID and Client Secret
 	clientID = config.twitch.twitch_client_id;
 	clientSecret = config.twitch.twitch_client_secret;
@@ -101,7 +122,7 @@ exports.init = function(seth, config){
 	permission = config.twitch.permission_groups;
 
 
-	console.log("Twitch Webook callback initializing...");
+	console.log("Twitch Webhook callback initializing...");
 	var app = express();
 	app.use(bodyParser.json());
 	app.get('/seth/twitch', function(req, res) { 
@@ -113,7 +134,6 @@ exports.init = function(seth, config){
 			console.log("Successful subscription pairing")
 		}
 		res.end();
-	  console.log("something hit me with a get :]");
 	});
 	app.post('/seth/twitch', function(req, res) {
 		var url_parts = url.parse(req.url, true);
@@ -124,11 +144,10 @@ exports.init = function(seth, config){
 			postNotification(data[0]);
 		}
 			
-		console.log("something hit me with a post :]");
 	  res.sendStatus(200);
 	});
-	app.listen(3001);
-	console.log('Listening on port 3001...');
+	app.listen(port);
+	console.log('Listening on port '+port+'...');
 
 	updateAll();
 	new CronJob('0 0 2 * * * ', function() {
@@ -147,8 +166,6 @@ function updateAll(){
 	}
 	setUpSubscription(names, "subscribe");	
 
-	// setUpSubscription(names, "unsubscribe", function(){
-	// });
 }
 
 function setUpSubscription(names, subVal, pair){
@@ -182,7 +199,6 @@ function setUpSubscription(names, subVal, pair){
 			}
 			if(typeof pair == "function") pair();
 			save();
-			console.log(chunk);
 
   		});
 	}).end();
@@ -191,7 +207,9 @@ function setUpSubscription(names, subVal, pair){
 }
 
 function postNotification(data){
-	channel.send("!!! TWITCH NOTIFICATION: "+userIDMap.get(data.user_id).display_name+" has gone live. !!!");
+	for(var i in channels){
+		channels[i].send("!!! TWITCH NOTIFICATION: "+userIDMap.get(data.user_id).display_name+" has gone live. !!!");	
+	}
 
 }
 
@@ -239,15 +257,27 @@ function save() {
   	people.push(value);
   });
   var json = JSON.stringify(people);
-  fs.writeFile('TwitchSubs.json', json, 'utf8', null);
+  fs.writeFile('twitch/TwitchSubs.json', json, 'utf8', null);
+}
+
+function saveChannels(){
+  var json = JSON.stringify(channels);
+  fs.writeFile('twitch/channels.json', json, 'utf8', null);
 }
 
 function getSubs(){  
   //Tries to load a savedCountJson... if that doesn't exist, it will throw an error but thats fine.. it wont hurt.
-  var file = fs.readFileSync('TwitchSubs.json', 'utf8');
+  var file = fs.readFileSync('twitch/TwitchSubs.json', 'utf8');
   if(typeof file === "undefined") return [];
   return JSON.parse(file); //now it an object
 
+}
+
+function readChannels(){
+   //Tries to load a savedCountJson... if that doesn't exist, it will throw an error but thats fine.. it wont hurt.
+  var file = fs.readFileSync('twitch/channels.json', 'utf8');
+  if(typeof file === "undefined") return [];
+  return JSON.parse(file); //now it an object
 }
 
 function checkPermission(msg){
