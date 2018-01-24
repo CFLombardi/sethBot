@@ -273,7 +273,13 @@ function saveChannels(){
 
 function getSubs(){  
   //Tries to load a savedCountJson... if that doesn't exist, it will throw an error but thats fine.. it wont hurt.
-  var file = fs.readFileSync('twitch/TwitchSubs.json', 'utf8');
+  try{ 
+  	var file = fs.readFileSync('twitch/TwitchSubs.json', 'utf8');
+	}
+	catch (err){
+		console.log("WARNING: could not find TwitchSubs.json... you can ignore this");
+		return [];
+	}
   if(typeof file === "undefined") return [];
   return JSON.parse(file); //now it an object
 
@@ -281,7 +287,13 @@ function getSubs(){
 
 function readChannels(){
    //Tries to load a savedCountJson... if that doesn't exist, it will throw an error but thats fine.. it wont hurt.
-  var file = fs.readFileSync('twitch/channels.json', 'utf8');
+   try{
+  		var file = fs.readFileSync('twitch/channels.json', 'utf8');
+  	}
+	catch (err){
+		console.log("WARNING: could not find channels.json... you can ignore this");
+		return [];
+	}
   if(typeof file === "undefined") return [];
   return JSON.parse(file); //now it an object
 }
