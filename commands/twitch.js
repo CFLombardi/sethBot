@@ -177,7 +177,7 @@ exports.init = function(bot, config){
 	console.log("Twitch Webhook callback initializing...");
 	var app = express();
 	app.use(bodyParser.json());
-	app.get('/seth/twitch', function(req, res) { 
+	app.get(path, function(req, res) { 
 		//Parse the GET request, if it contains "hub.challenge" return that so Twitch will send us messages. Otherwise just give it a 200 (OK) response code.
 		var url_parts = url.parse(req.url, true);
 		var challenge = url_parts.query['hub.challenge'];
@@ -189,7 +189,7 @@ exports.init = function(bot, config){
 		res.end();
 	});
 
-	app.post('/seth/twitch', function(req, res) {
+	app.post(path, function(req, res) {
 		//Parse the POST request, we know its going to have JSON in the body.
 		//If that JSON has a "data" element, we send the messages to the discord channels.
 		//Twitch might accidently send multiple of the same request. for that reason, there is a safe guard in place to only show one notification to the users. (Array seenIDs)
@@ -375,6 +375,7 @@ function readChannels(){
 
 //This makes sure a user has the roles specified in the config to run the admin based commands.
 function checkPermission(msg){
+	if(typeof permission === "undefined" || (typeof permission !== "undefined" && permission.length<1)) return;
 	var hasRole = false;
 	for(var i in permission){
 		if(msg.member.roles.has(permission[i])){
