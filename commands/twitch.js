@@ -23,6 +23,8 @@ var channels,
 
 var inited = false;
 
+var seth;
+
 exports.run = function(config, msg) {
 	var command = msg.content.split(/(\s+)/).filter( function(e) { return e.trim().length > 0; } );
 	//we can assume command[0] is useless.
@@ -85,7 +87,10 @@ exports.run = function(config, msg) {
 		if(!channels.includes(id)){
 			channels.push(id);
 			saveChannels();
+			msg.channel.send("ALL SHALL HEAR ME.");
+			return;
 		}
+		msg.channel.send("I'M SCREAMING ALREADY");
 
 	}else if(command[1].toLowerCase() == "unlisten"){
 		if(!checkPermission(msg)){
@@ -96,8 +101,10 @@ exports.run = function(config, msg) {
 		if(typeof index != 'undefined' && index > -1){
 			channels.splice(index, 1);
 			saveChannels();
+			msg.channel.send("Fine. I'll just shut up.");
+			return;
 		}
-		
+		msg.channel.send("I'm already not talking.");
 		
 	}else {
 		msg.channel.send("Sorry bro. I only accept \"add\", \"remove\" or \"list\"")
@@ -109,7 +116,7 @@ exports.messageFired = function(config,msg) {
 	//do nothing  
 }
 
-exports.init = function(seth, config){
+exports.init = function(bot, config){
 	if(inited)return;
 	inited = true;
 
@@ -117,7 +124,7 @@ exports.init = function(seth, config){
 	if (!fs.existsSync(dir)){
 	    fs.mkdirSync(dir);
 	}
-
+	this.seth = bot;
 	channels = readChannels();
 	//get the Client ID and Client Secret
 	clientID = config.twitch.twitch_client_id;
@@ -214,7 +221,7 @@ function setUpSubscription(names, subVal, pair){
 
 function postNotification(data){
 	for(var i in channels){
-		channels[i].send("!!! TWITCH NOTIFICATION: "+userIDMap.get(data.user_id).display_name+" has gone live. !!!");	
+		seth.channels.get(channels[i]).send("!!! TWITCH NOTIFICATION: "+userIDMap.get(data.user_id).display_name+" has gone live. !!!");	
 	}
 
 }
