@@ -97,7 +97,7 @@ exports.run = function(config, msg) {
 			return;
 		}
 		var id = msg.channel.id;
-		var index = channels.findIndex(id.valueOf());
+		var index = channels.indexOf(id);
 		if(typeof index != 'undefined' && index > -1){
 			channels.splice(index, 1);
 			saveChannels();
