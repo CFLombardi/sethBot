@@ -112,7 +112,13 @@ exports.messageFired = function(config,msg) {
 exports.init = function(seth, config){
 	if(inited)return;
 	inited = true;
-	channels = readChannels();seth.channels.get("309108850039062538");
+
+	var dir = './twitch';
+	if (!fs.existsSync(dir)){
+	    fs.mkdirSync(dir);
+	}
+
+	channels = readChannels();
 	//get the Client ID and Client Secret
 	clientID = config.twitch.twitch_client_id;
 	clientSecret = config.twitch.twitch_client_secret;
