@@ -13,7 +13,11 @@ const karmaMap = new Map();
 
 function updateKarmaMap(){  
   //Tries to load a savedCountJson... if that doesn't exist, it will throw an error but thats fine.. it wont hurt.
+  try{
   var file = fs.readFileSync('savedCount.json', 'utf8');
+  } catch (err){
+    return;
+  }
   var obj = JSON.parse(file); //now it an object
   for(var i in obj.dosh)
   {
