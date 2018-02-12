@@ -11,7 +11,7 @@ var badChars = ["@", "+", "-", "*", "/", "\\", "\"", "\'", "$", "(", ")", "[", "
 //Key: Discord User ID ::: Value: Discord
 const karmaMap = new Map();
 
-function updateKarmaMap(){  
+function updateKarmaMap(){
   //Tries to load a savedCountJson... if that doesn't exist, it will throw an error but thats fine.. it wont hurt.
   try{
   var file = fs.readFileSync('savedCount.json', 'utf8');
@@ -27,7 +27,7 @@ function updateKarmaMap(){
     var user = new User(id,name);
     user.setCount(totalCount);
     karmaMap.set(id, user);
-  } 
+  }
 }
 
 
@@ -43,6 +43,9 @@ exports.messageFired = function(config,msg) {
 
 
 exports.run = function(config, msg) {
+  if(msg.channel.type != "text") {
+    return;
+  }
   //lazy update of karma map.
   updateKarmaMap();
   var content = msg.content.split("!dosh");
@@ -98,7 +101,7 @@ exports.run = function(config, msg) {
   for (var value of mentions) {
     if(value[0] === msg.author.id) {
       msg.channel.send("I respect the self love bro, but you can't vote for yourself.  Bad form!  SHAME!");
-      
+
       return;
     }
 
