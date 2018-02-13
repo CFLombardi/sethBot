@@ -30,6 +30,10 @@ function updateKarmaMap(){
   }
 }
 
+exports.init = function(bot, config) {
+  updateKarmaMap();
+}
+
 
 //Key: messageid ::: Value: collection<integer> (Discord UserIDs of members who reacted to a message )
 const usersWhoReacted = new Map();
