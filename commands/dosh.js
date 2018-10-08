@@ -6,7 +6,8 @@ require("collections/listen/array-changes");
 //this will track users who have invoked this command
 //for each message we will track the userID, the target, and time invoked
 var messageHistory = [];
-var badChars = ["@", "+", "-", "*", "/", "\\", "\"", "\'", "$", "(", ")", "[", "]", "{", "}", ":"]
+var badChars = ["@", "+", "-", "*", "/", "\\", "\"", "\'", "$", "(", ")", "[", "]", "{", "}", ":"];
+var prefix = "!dosh";
 
 //Key: Discord User ID ::: Value: Discord
 const karmaMap = new Map();
@@ -52,7 +53,7 @@ exports.run = function(config, msg) {
   }
   //lazy update of karma map.
   updateKarmaMap();
-  var content = msg.content.split("!dosh");
+  var content = msg.content.split(prefix);
   var mentions = msg.mentions.users;
   var command;
   var targets;
