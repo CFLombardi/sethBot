@@ -21,16 +21,13 @@ else{
 }
 
 seth.on("message", msg => {
-
-	var input = msg.content;
 	if((msg.channel.name == "sethbotdeveloper" || !developerMode) && !msg.author.bot)
 	{
-		
 		for (var property in commands){
 			if (commands.hasOwnProperty(property)) {
 				if(msg.content.toLowerCase().startsWith(config.prefix+property))
 				{
-			      commands[property].run(config, msg);
+			    commands[property].run(config, msg);
 				}
 			}
 			commands[property].messageFired(config,msg);
@@ -45,9 +42,9 @@ seth.on("ready", () => {
 	if(typeof commands[property].init === "function"){
 		commands[property].init(seth, config);
 	}
-  		
+
 }
-	
+
 });
 
 //do something when app is closing
