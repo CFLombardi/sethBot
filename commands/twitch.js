@@ -41,14 +41,14 @@ var seth;
 exports.run = function(config, msg) {
 	//cuts messages on whitepace.
 	var command = msg.content.split(/(\s+)/).filter( function(e) { return e.trim().length > 0; } );
-	//we can assume command[0] is useless, command[1] has the command and command [2] has information about a command..
+	//we can assume command[0] is useless, command[0] has the command and command [2] has information about a command..
 	//COMMAND TO ADD USERS
-	if(command[1].toLowerCase() == "add"){
+	if(command[0].toLowerCase() == "add"){
 		if(!checkPermission(msg)){
 			return;
 		}
 		//Get the username, if its not defined, tell the user that.
-		var username = command[2];
+		var username = command[1];
 		if(typeof username == "undefined"){
 			msg.channel.send("Gotta include a name. !twitch add [twitchusername]");
 			return;
@@ -61,12 +61,12 @@ exports.run = function(config, msg) {
 		});
 	}
 	//COMMAND TO REMOVE USERS
-	else if(command[1].toLowerCase() == "remove"){
+	else if(command[0].toLowerCase() == "remove"){
 		if(!checkPermission(msg)){
 			return;
 		}
 		//Get the username, if its undefined, tell the user.
-		var username = command[2];
+		var username = command[1];
 		var foundInMap = false;
 		if(typeof username == "undefined"){
 			msg.channel.send("Gotta include a name. !twitch add [twitchusername]");
@@ -90,7 +90,7 @@ exports.run = function(config, msg) {
 		});
 	}
 	//COMMAND TO REMOVE USERS
-	else if(command[1].toLowerCase() == "list"){
+	else if(command[0].toLowerCase() == "list"){
 		//anyone can run this command. All we need to go is go through the user map and pull out the names. if there are no users, tell them that.
 		var values = [];
 	  	userIDMap.forEach( function(value,key,userIDMap) {
@@ -103,7 +103,7 @@ exports.run = function(config, msg) {
 		msg.channel.send("I'm watching: \n"+values.join("\n"));
 	}
 	//COMMAND TO SEND NOTIFICATIONS TO A DISCORD CHANNEL.
-	else if(command[1].toLowerCase() == "listen"){
+	else if(command[0].toLowerCase() == "listen"){
 		if(!checkPermission(msg)){
 			return;
 		}
@@ -119,7 +119,7 @@ exports.run = function(config, msg) {
 
 	}
 	//COMMAND TO STOP SENDING NOTIFICATIONS TO A DISCORD CHANNEL.
-	else if(command[1].toLowerCase() == "unlisten"){
+	else if(command[0].toLowerCase() == "unlisten"){
 		if(!checkPermission(msg)){
 			return;
 		}

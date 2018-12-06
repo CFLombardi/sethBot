@@ -6,7 +6,7 @@ require("collections/listen/array-changes");
 //this will track users who have invoked this command
 //for each message we will track the userID, the target, and time invoked
 var messageHistory = [];
-var badChars = ["@", "+", "-", "*", "/", "\\", "\"", "\'", "$", "(", ")", "[", "]", "{", "}", ":"]
+var badChars = ["@", "+", "-", "*", "/", "\\", "\"", "\'", "$", "(", ")", "[", "]", "{", "}", ":"];
 
 //Key: Discord User ID ::: Value: Discord
 const karmaMap = new Map();
@@ -52,23 +52,23 @@ exports.run = function(config, msg) {
   }
   //lazy update of karma map.
   updateKarmaMap();
-  var content = msg.content.split("!dosh");
+  var content = msg.content
   var mentions = msg.mentions.users;
   var command;
   var targets;
   var vote;
 
   //Determine whether it's an upvote or a downvote
-  if(content[1].endsWith("++")) {
-    content = content[1].split("++");
+  if(content.endsWith("++")) {
+    content = content.split("++");
     command = content[0].trim();
     vote = "+";
-  } else if(content[1].endsWith("--")) {
-    content = content[1].split("--");
+  } else if(content.endsWith("--")) {
+    content = content.split("--");
     command = content[0].trim();
     vote = "-";
   } else {
-    var target = validateTargets(msg, content[1].trim());
+    var target = validateTargets(msg, content.trim());
     var outStr;
     if(target != false && target.length === 1) {
       karmaMap.forEach(function(value, key, dosh) {
@@ -275,7 +275,11 @@ function save() {
   obj.dosh.push(value);
   });
   var json = JSON.stringify(obj);
-  fs.writeFile('savedCount.json', json, 'utf8', null);
+  fs.writeFile('savedCount.json', json, 'utf8', function(err) {
+    if(err) {
+      console.log(err);
+    }
+  });
 }
 
 //Takes in a collector and a message and sets up the tracker.
