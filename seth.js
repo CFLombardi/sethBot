@@ -28,8 +28,8 @@ seth.on("message", msg => {
 				if(msg.content.toLowerCase().startsWith(config.prefix+property))
 				{
 					var input = msg.content.split(config.prefix+property);
-					msg.content = input[1];
-			    commands[property].run(config, msg);
+					msg.content = input[1].trim();
+			    	commands[property].run(config, msg);
 				}
 			}
 			commands[property].messageFired(config,msg);
