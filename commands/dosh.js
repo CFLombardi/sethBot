@@ -7,7 +7,6 @@ require("collections/listen/array-changes");
 //for each message we will track the userID, the target, and time invoked
 var messageHistory = [];
 var badChars = ["@", "+", "-", "*", "/", "\\", "\"", "\'", "$", "(", ")", "[", "]", "{", "}", ":"];
-var prefix = "!dosh";
 
 //Key: Discord User ID ::: Value: Discord
 const karmaMap = new Map();
