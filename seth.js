@@ -6,6 +6,14 @@ const seth = new Discord.Client();
 require('events').EventEmitter.prototype._maxListeners = 0;
 const {commands} = require("./commands");
 
+//THIS IS IMPORTANT FOR UNCAUGHT EXCEPTIONS. DO NOT REMOVE
+var myEmitter = new (require('events').EventEmitter)();
+// add this handler before emitting any events
+process.on('uncaughtException', function (err) {
+    console.log('UNCAUGHT EXCEPTION - keeping process alive:', err); // err.message is "foobar"
+});
+
+
 //This controls whether only the seth channel is listened to or all channels.
 //true	: Only seth channel.
 //false : All channels

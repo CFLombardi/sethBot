@@ -34,6 +34,7 @@ var options = {
 			});
   		});
 	}).end();
+
 	
 
 }
@@ -52,6 +53,6 @@ var options = {
 	    	msg.channel.send(JSON.parse(chunk).message);
   		});
 	}).end();
-	
+
 
 }
