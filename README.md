@@ -14,7 +14,7 @@ You will need to create a "config.json" file in the root directory with the foll
 {
   "developerMode" : "false",
   "token" : "__DISCORD_BOT_API__",
-  "devToken": "__DISCORD_BOT_API",
+  "devToken": "__DISCORD_BOT_API__",
   "prefix": "!",
   "catApi": "__CAT_API__",
   "upEmoji": "__CUSTOM_EMOJI_ID_NUMBER__",
