@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 var randomBoolean = require('random-boolean');
 var parseString = require('xml2js').parseString;
 require("collections/shim-array");
@@ -19,13 +20,13 @@ exports.messageFired = function(config,msg) {
 
 function showCatPicture(config,msg){
 var options = {
-	  host: "thecatapi.com",
-	  port: 80,
+	  host: "api.thecatapi.com",
+	  port: 443,
 	  path: '/api/images/get?api_key='+config.catApi+'&format=xml&results_per_page=1',
 	  method: 'GET'
 	};
 
-	http.request(options, function(res) {
+	https.request(options, function(res) {
 		res.setEncoding('utf8');
 		res.on('data', function (chunk) {
 		parseString(chunk, function (err, result) {
@@ -40,12 +41,12 @@ var options = {
 function showDogPicture(msg){
 var options = {
 	  host: "dog.ceo",
-	  port: 80,
+	  port: 443,
 	  path: '/api/breeds/image/random',
 	  method: 'GET'
 	};
 
-	http.request(options, function(res) {
+	https.request(options, function(res) {
 		res.setEncoding('utf8');
 		res.on('data', function (chunk) {
 	    	msg.channel.send(JSON.parse(chunk).message);
