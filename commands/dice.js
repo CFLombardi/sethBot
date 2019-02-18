@@ -4,9 +4,9 @@ exports.run = function(config, msg) {
   var roll = new Roll();
   var input = msg.content;
   var dicebag = input.split("+");
+  var output;
 
   dicebag = assembleDice(dicebag);
-  console.log(dicebag);
   for(var i = 0; i < dicebag.length; i++) {
     var advantage = "none";
 
@@ -19,7 +19,6 @@ exports.run = function(config, msg) {
       dicebag[i] = dicebag[i].replace("D", "");
     }
 
-    console.log(dicebag[i]);
     var valid = roll.validate(dicebag[i]);
     if(valid) {
       //collect some data before rolling
@@ -33,17 +32,23 @@ exports.run = function(config, msg) {
         count = 0;
       }
 
-      var temp = dicebag[i].split("d")[1];
-      if(temp.includes("+")) {
-        temp = temp.split("+");
-        if(temp.length > 1) {
-            type = temp[0];
-            for(var j = 1; j < temp.length; j++) {
-              modifiers.push({value: temp[j], sign: "+"});
+      var temp = dicebag[i].split("d")[1]
+      for(var j=0; j<temp.length; j++){
+        if(isNaN(temp.charAt(j))) {
+          if(type === undefined) {
+            type = temp.substring(0, j);
+          }
+          for(var k=j+1; k <temp.length; k++) {
+            if(isNaN(temp.charAt(k))) {
+              modifiers.push({value: temp.substring(j+1, k), sign: temp.charAt(j)});
+              break;
             }
+
+            if(k === (temp.length - 1)){
+              modifiers.push({value: temp.substring(j+1), sign: temp.charAt(j)});
+            }
+          }
         }
-      } else {
-        type = temp;
       }
 
       //determine what kind of roll we are making
@@ -58,47 +63,51 @@ exports.run = function(config, msg) {
         } else {
           result = (diceRolled[0] > diceRolled[1])? diceRolled[1]: diceRolled[0];
         }
-        /*
+
         if(modifiers.length > 0) {
           for(var j = 0; j < modifiers.length; j++) {
-              result += Number(modifiers[j]);
+            if(modifiers[j].sign === "+") {
+              result += Number(modifiers[j].value);
+            } else {
+              result -= Number(modifiers[j].value);
+            }
           }
         }
-        */
-        msg.channel.send("You rolled "+dicebag[i]+" with "+advantage+".  Here is your roll: "+diceRolled+".  With modifiers, your result is "+result);
+
+        msg.channel.send("You rolled "+dicebag[i]+" with "+advantage+".  Here are your rolls: "+diceRolled+".  With modifiers, your result is "+result);
       } else {
         var userRoll = roll.roll(dicebag[i]);
         var diceRolled = userRoll.rolled;
         var result = userRoll.result;
+        output = "You rolled "+dicebag[i]+".  ";
 
         if(count > 1) {
+          output += "Here are your rolls: "+diceRolled+".  ";
           if(modifiers.length > 0) {
-            /*
-            for (var j = 0; j < modifiers.length; j++) {
-              result += Number(modifiers[j]);
-            }
-            */
-            msg.channel.send("You rolled "+dicebag[i]+".  Here are your rolls: "+diceRolled+".  With modifiers, your result is "+result);
+            output += "With modifiers, your result is "+result;
           } else {
-            msg.channel.send("You rolled "+dicebag[i]+".  Here are your rolls: "+diceRolled+".  Your result is "+result);
+            output += "Your result is "+result;
           }
         } else {
           if(modifiers.length > 0) {
-            /*
+            var original = result;
             for (var j = 0; j < modifiers.length; j++) {
-              result += Number(modifiers[j]);
+              if(modifiers[j].sign === "+") {
+                original -= Number(modifiers[j].value);
+              } else {
+                original += Number(modifiers[j].value);
+              }
             }
-            */
-            msg.channel.send("You rolled "+dicebag[i]+".  With modifiers, your result is "+result);
+            output += "Here is your roll: "+original+".  With modifiers, your result is "+result;
           } else {
-            result = userRoll.result;
-            msg.channel.send("You rolled "+dicebag[i]+".  Your result is: "+result);
+            output += "Your result is: "+result;
           }
         }
+        msg.channel.send(output);
       }
     } else {
-      var output = dicebag[i];
-      msg.channel.send(output+" is not in the proper format.");
+      output = "Bro, "+dicebag[i]+" is NOT in the proper format.";
+      msg.channel.send(output);
       return;
     }
   }
@@ -106,7 +115,6 @@ exports.run = function(config, msg) {
 
 function assembleDice(input) {
   var result = [];
-  console.log(input);
   for(var i = 0; i < input.length; i++) {
     var isDie = input[i].includes("d");
     if(isDie) {
