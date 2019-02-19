@@ -3,57 +3,29 @@ var Roll = require('roll');
 exports.run = function(config, msg) {
   var roll = new Roll();
   var input = msg.content;
-  var dicebag = input.split("+");
+  var dicebag;
   var output;
 
-  dicebag = assembleDice(dicebag);
+  dicebag = assembleDice(input);
+
+  console.log(dicebag);
+
+  if(dicebag === false) {
+    output = "Bro, "+input+" is not in the correct format.  Clean that shit up!";
+    msg.channel.send(output);
+  }
+
   for(var i = 0; i < dicebag.length; i++) {
-    var advantage = "none";
-
-    //check for advantage
-    if(dicebag[i].includes("A")) {
-      advantage = "advantage";
-      dicebag[i] = dicebag[i].replace("A", "");
-    } else if (dicebag[i].includes("D")) {
-      advantage = "disadvantage";
-      dicebag[i] = dicebag[i].replace("D", "");
-    }
-
-    var valid = roll.validate(dicebag[i]);
+    var text = dicebag[i].text;
+    var valid = roll.validate(text);
     if(valid) {
-      //collect some data before rolling
-      var count,
-          type;
-      var modifiers = [];
-
-      if(dicebag[i].match(/^\d/)) {
-        count = dicebag[i].split("d")[0];
-      } else {
-        count = 0;
-      }
-
-      var temp = dicebag[i].split("d")[1]
-      for(var j=0; j<temp.length; j++){
-        if(isNaN(temp.charAt(j))) {
-          if(type === undefined) {
-            type = temp.substring(0, j);
-          }
-          for(var k=j+1; k <temp.length; k++) {
-            if(isNaN(temp.charAt(k))) {
-              modifiers.push({value: temp.substring(j+1, k), sign: temp.charAt(j)});
-              break;
-            }
-
-            if(k === (temp.length - 1)){
-              modifiers.push({value: temp.substring(j+1), sign: temp.charAt(j)});
-            }
-          }
-        }
-      }
-
+      var type = dicebag[i].type;
+      var advantage = dicebag[i].advantage;
+      var count = dicebag[i].count;
+      var modifiers = (dicebag[i].mods.length > 0)? dicebag[i].mods: null;
       //determine what kind of roll we are making
       if(advantage != "none") {
-        var temp = (count > 0)? dicebag[i].replace(dicebag[i].charAt(0), "2"): "2"+dicebag[i];
+        var temp = (modifiers != null)? "2d"+type+dicebag[i].modString: "2d"+type;
         var userRoll = roll.roll(temp);
         var diceRolled = userRoll.rolled;
         var result;
@@ -64,69 +36,118 @@ exports.run = function(config, msg) {
           result = (diceRolled[0] > diceRolled[1])? diceRolled[1]: diceRolled[0];
         }
 
-        if(modifiers.length > 0) {
+        if(modifiers != null) {
           for(var j = 0; j < modifiers.length; j++) {
             if(modifiers[j].sign === "+") {
               result += Number(modifiers[j].value);
-            } else {
+            } else if (modifiers[j].sign === "-") {
               result -= Number(modifiers[j].value);
+            } else if (modifiers[j].sign === "/") {
+              result = result/Number(modifiers[j].value);
+            } else if (modifiers[j].sign === "*") {
+              result = result*Number(modifiers[j].value);
             }
           }
         }
 
-        msg.channel.send("You rolled "+dicebag[i]+" with "+advantage+".  Here are your rolls: "+diceRolled+".  With modifiers, your result is "+result);
+        msg.channel.send("You rolled "+text+" with "+advantage+".  Here are your rolls: "+diceRolled+".  With modifiers, your result is "+result);
       } else {
-        var userRoll = roll.roll(dicebag[i]);
+        var userRoll = roll.roll(dicebag[i].text);
         var diceRolled = userRoll.rolled;
         var result = userRoll.result;
-        output = "You rolled "+dicebag[i]+".  ";
+        output = "You rolled "+text+".  ";
 
         if(count > 1) {
           output += "Here are your rolls: "+diceRolled+".  ";
-          if(modifiers.length > 0) {
-            output += "With modifiers, your result is "+result;
+          if(modifiers != null) {
+            output += "With modifiers, your total is "+result;
           } else {
-            output += "Your result is "+result;
+            output += "Your total is "+result;
           }
         } else {
-          if(modifiers.length > 0) {
+          if(modifiers != null) {
             var original = result;
             for (var j = 0; j < modifiers.length; j++) {
               if(modifiers[j].sign === "+") {
                 original -= Number(modifiers[j].value);
-              } else {
+              } else if(modifiers[j].sign === "-") {
                 original += Number(modifiers[j].value);
+              } else if(modifiers[j].sign === "/") {
+                original = original*Number(modifiers[j].value);
+              } else if(modifiers[j].sign === "*") {
+                original = original/Number(modifiers[j].value);
               }
             }
-            output += "Here is your roll: "+original+".  With modifiers, your result is "+result;
+            output += "Here is your roll: "+original+".  With modifiers, your total is "+result;
           } else {
-            output += "Your result is: "+result;
+            output += "Your total is: "+result;
           }
         }
         msg.channel.send(output);
       }
     } else {
-      output = "Bro, "+dicebag[i]+" is NOT in the proper format.";
+      output = "Bro, "+text+" is NOT in the proper format.";
       msg.channel.send(output);
       return;
     }
   }
 }
 
-function assembleDice(input) {
+function assembleDice(request) {
   var result = [];
-  for(var i = 0; i < input.length; i++) {
-    var isDie = input[i].includes("d");
-    if(isDie) {
-      for(var j = i+1; j < input.length; j++) {
-        if(!isNaN(input[j]) || (input[j].includes("-") && !input[j].includes("d"))) {
-          input[i] = input[i]+"+"+input[j];
-        } else {
-          break;
+  var dice = request.split("&");
+
+  for(var i = 0; i < dice.length; i++) {
+    var count,
+        type;
+    var modifiers = [];
+    var advantage = "none";
+    var temp = dice[i].split("d");
+    if(temp[0] === "") {
+      count = 1;
+    } else if (!(isNaN(temp[0]))) {
+      count = temp[0];
+    } else {
+      result = false;
+      return result;
+    }
+
+    if(!isNaN(temp[1])) {
+      type = temp[1];
+    } else {
+      for(var j = 0; j < temp[1].length; j++) {
+        if(isNaN(temp[1].charAt(j))) {
+          if(type === undefined) {
+            type = temp[1].substring(0, j);
+            if(temp[1].charAt(j) === "A") {
+              advantage = "advantage";
+              temp[1] = temp[1].slice(0, j)+temp[1].slice(j+1);
+              dice[i] = temp[0]+"d"+temp[1];
+            } else if(temp[1].charAt(j) === "D") {
+              advantage = "disadvantage";
+              temp[1] = temp[1].slice(0, j)+temp[1].slice(j+1);
+              dice[i] = temp[0]+"d"+temp[1];
+            }
+          }
+
+          for(var k = j+1; k < temp[1].length; k++) {
+            if(isNaN(temp[1].charAt(k))) {
+              modifiers.push({value: temp[1].substring(j+1, k), sign: temp[1].charAt(j)});
+              break;
+            } else if(k === (temp[1].length -1)) {
+              modifiers.push({value: temp[1].substring(j+1), sign: temp[1].charAt(j)});
+            }
+          }
         }
       }
-      result.push(input[i]);
     }
+
+    var modString = "";
+    for(var k = 0; k < modifiers.length; k++){
+      modString += ""+modifiers[k].sign+modifiers[k].value;
+    }
+
+    result.push({text: dice[i], count: count, type: type, mods: modifiers, advantage: advantage, modString: modString});
   }//for loop
   return result
 }
