@@ -6,6 +6,12 @@ exports.run = function(config, msg) {
   var dicebag;
   var output;
 
+  if(input === "") {
+    output = "This is the dice command.  You may invoke a roll by using the following syntax:\n```!dice [count]d[type][advantage]+/-[modifiers]\n  count = the number of dice you wish to roll\n  type = the type of dice, ex. d20 d12 d6 d4\n  advantage = A for advatange and D for disadvantage\n  modifiers = can have '+' '-' '/' '*' and an amount```\nYou may roll more than one dice per line using the '&' character to separate.\n```!dice d20&2d6```\nPlease note that using advantage with your type will ignore the count and roll only two dice.";
+    msg.channel.send(output);
+    return;
+  }
+
   dicebag = assembleDice(input);
 
   console.log(dicebag);
