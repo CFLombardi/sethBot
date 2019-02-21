@@ -14,8 +14,6 @@ exports.run = function(config, msg) {
 
   dicebag = assembleDice(input);
 
-  console.log(dicebag);
-
   if(dicebag === false) {
     output = "Bro, "+input+" is not in the correct format.  Clean that shit up!";
     msg.channel.send(output);
@@ -111,7 +109,7 @@ function assembleDice(request) {
     var temp = dice[i].split("d");
     if(temp[0] === "") {
       count = 1;
-    } else if (!(isNaN(temp[0]))) {
+    } else if (!(isNaN(temp[0])) && temp[0] < 20) {
       count = temp[0];
     } else {
       result = false;
