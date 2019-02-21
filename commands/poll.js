@@ -121,7 +121,9 @@ function buildPollObject(poll, time){
 		var that = this;
 		this.collector = this.message.createReactionCollector((reaction, user) => !user.bot);
 		this.collector.on('collect', r => {
-			console.log(r._emoji);
+			r.fetchUsers().then( collection => {
+				updatePoll(that,r,collection.values());
+			});
 		});
 		var asyncCount=0;
 		this.answers.forEach( function (answer){
@@ -132,12 +134,15 @@ function buildPollObject(poll, time){
 			if(that.remainingTime() <0){
 				that.deactivate();
 			}
-			that.message.edit(that.displayText());
+			that.refresh();
 		},5000);
 	}
 	newPoll.deactivate = function(){
 		clearInterval(this.timer);
 		this.collector.stop();
+	}
+	newPoll.refresh = function(){
+		this.message.edit(this.displayText());
 	}
 	return newPoll;
 }
@@ -150,6 +155,21 @@ function buildAnswerObject(answer,key){
 		return this.key.text + ": " +this.text;
 	}		
 	return newAnswer;
+}
+
+function updatePoll(poll,reaction,users){
+	var santizedUsers = [];
+	for(let user of users){
+		if(user.bot) continue;
+		santizedUsers.push(user);
+	}
+	if(santizedUsers.length == 0) return;
+	santizedUsers.forEach(function(user){
+		var id = (reaction._emoji.id!=null) ? reaction._emoji.id : reaction._emoji.name;
+
+		var answer = poll.answers.get(id);
+		console.log(answer);
+	})
 }
 
 async function reactAsync(message, answer, after){
