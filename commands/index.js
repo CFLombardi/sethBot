@@ -11,6 +11,6 @@ exports.commands = {
   eyebleach: eyebleach,
   twitch: twitch,
   live: twitch,
- // dice: dice,
+  dice: dice,
   poll: poll
 }
