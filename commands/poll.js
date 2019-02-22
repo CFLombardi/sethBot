@@ -72,6 +72,14 @@ exports.run = function(config, msg) {
 		strippedQuotes.push(quote.substring(1,quote.length-1).replace("\\\"", "\"")); // remove the escaped quotes for the real thing. 
 
 	});
+
+	//Make sure that there are no blank questions or answers
+	var noEmpties = strippedQuotes.every(quote => !quote.trim() == "")
+	if(!noEmpties){
+		msg.channel.send("I'm not dealing with blank questions or answers bub.");
+		return;
+	}
+
 	//From here we should just be left with arguments. Strip that whitespace and start looking at them.
 	content = content.trim();
 	var args = content.match(/\S+/g);
@@ -220,7 +228,6 @@ function buildPollObject(poll, time){
 		//This timer checks and updates the message every 5 seconds to update the clock and the voters. After time expires, it calls "deactivate" to tear down the message.
 		this.timer = setInterval(function(){
 			if(that.message.deleted){
-				console.log("Poll was deleted :(");
 				that.deactivate();
 				return;
 			}
@@ -234,7 +241,9 @@ function buildPollObject(poll, time){
 	newPoll.deactivate = function(){
 		//Stop checking if the poll is over every 5 seconds, clear out all reactions, and stop listening for reactions.
 		clearInterval(this.timer);
-		this.message.clearReactions();
+		if (!this.message.deleted){
+			this.message.clearReactions();
+		}
 		this.collector.stop();
 	}
 	//Helper Method to actually edit the poll message.
