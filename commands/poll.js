@@ -219,6 +219,11 @@ function buildPollObject(poll, time){
 		})
 		//This timer checks and updates the message every 5 seconds to update the clock and the voters. After time expires, it calls "deactivate" to tear down the message.
 		this.timer = setInterval(function(){
+			if(that.message.deleted){
+				console.log("Poll was deleted :(");
+				that.deactivate();
+				return;
+			}
 			if(that.remainingTime() <0){
 				that.deactivate();
 			}
@@ -325,3 +330,30 @@ function n(n){
 exports.messageFired = function(config,msg) {
 	//do nothing  
 }
+
+// Example Poll object (for future)
+// { question: 'Is this a test?',
+//   endDate: 2019-02-22T04:36:56.393Z,
+//   answers:
+//    Map {
+//      '🇦' => { text: 'Of course it is!',
+//        key: [Object],
+//        displayText: [Function],
+//        voters: Map {} },
+//      '🇧' => { text: 'nope',
+//        key: [Object],
+//        displayText: [Function],
+//        voters: Map {} } },
+//   multiple: false,
+//   hidden: true,
+//   pin: false,
+//   displayText: [Function],
+//   remainingTime: [Function],
+//   remainingTimeText: [Function],
+//   activate: [Function],
+//   deactivate: [Function],
+//   refresh: [Function],
+//   removeFromOtherAnswers: [Function],
+//   message:
+//    Message { }
+// }
