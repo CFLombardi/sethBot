@@ -33,7 +33,7 @@ seth.on("message", msg => {
 	{
 		for (var property in commands){
 			if (commands.hasOwnProperty(property)) {
-				if(msg.content.toLowerCase().startsWith(config.prefix+property))
+				if(msg.content.startsWith(config.prefix+property))
 				{
 					var input = msg.content.split(config.prefix+property);
 					msg.content = input[1].trim();
