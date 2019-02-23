@@ -20,12 +20,12 @@ You will need to create a "config.json" file in the root directory with the foll
   "upEmoji": "__CUSTOM_EMOJI_ID_NUMBER__",
   "downEmoji": "__CUSTOM_EMOJI_ID_NUMBER__",
   "twitch" : {
-	  "twitch_client_id" : "__TWITCH_CLIENT_ID__",
-	  "twitch_client_secret" : "__TWITCH_CLIENT_SECRET__",
-	  "twitch_callback_host" : "__CALLBACK_HOST__",
-	  "twitch_callback_path" : "__CALLBACK_PATH",
-	  "twitch_callback_port" : 3001,
-	  "permission_groups" : ["__ADMIN_PERMISSION_ID__"]
+    "twitch_client_id" : "__TWITCH_CLIENT_ID__",
+    "twitch_client_secret" : "__TWITCH_CLIENT_SECRET__",
+    "twitch_callback_host" : "__CALLBACK_HOST__",
+    "twitch_callback_path" : "__CALLBACK_PATH",
+    "twitch_callback_port" : 3001,
+    "permission_groups" : ["__ADMIN_PERMISSION_ID__"]
   }
 
 }
@@ -65,6 +65,32 @@ User Commands:
 
 NOTE: Only users who have a role specified in the config.json->twitch->permission_groups will be able to run those commands.
 
+#### Dice
+Seth will use a [roll module](https://www.npmjs.com/package/roll) to simulate many different dice combinations helpful for Role Playing games / any RNG needs on your server. 
+```
+!dice [count]d[type][advantage]+/-[modifiers]
+  count = the number of dice you wish to roll
+  type = the type of dice, ex. d20 d12 d6 d4
+  advantage = A for advatange and D for disadvantage
+  modifiers = can have '+' '-' '/' '*' and an amount
+```
+You may roll more than one dice per line using the '&' character to separate.
+
+`!dice d20&2d6`
+
+Please note that using advantage with your type will ignore the count and roll only two dice.
+
+#### Polls
+Sethbot can handle polling. There comes a time on everyone's server where you need to ask pressing questions and get pressing responses, Sethbot has you covered. 
+```
+!poll "Question" "Answer1" "Answer2" "AnswerN" [arguments]
+Optional arguments include:
+hidden -> Doesn't show who voted for what answer
+multiple -> Allows users to vote for multiple answers
+pin -> pins the message to the channel
+time=X -> Sets the timer for the poll were X is the amount of time  in mins (default 2 hours)
+```
+Note: Polls require the bot has permissions to "manage messages" on a server basis as this feature requires updating and removing emojis.
 ## Removal
 Delete all the files under the root. There are no system entanglements.
 
