@@ -20,7 +20,7 @@ exports.run = function(config, msg) {
     } else if((response > 33) && (response <= 66)) {
       msg.channel.send("You threw paper!");
     } else if(response > 66) {
-      msg.channel.send("You threw sissors!");
+      msg.channel.send("You threw scissors!");
     }
     return;
   }
