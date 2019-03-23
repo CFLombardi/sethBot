@@ -12,6 +12,18 @@ exports.run = function(config, msg) {
     return;
   }
 
+  if((input === "rps") || (input === "RPS")) {
+    var response = Math.round((Math.random()*100));
+    if((response > 0) && (response <= 33)) {
+      msg.channel.send("You threw rock!");
+    } else if((response > 33) && (response <= 66)) {
+      msg.channel.send("You threw paper!");
+    } else if(response > 66) {
+      msg.channel.send("You threw scissors!");
+    }
+    return;
+  }
+
   dicebag = assembleDice(input);
 
   if(dicebag === false) {
