@@ -14,7 +14,6 @@ exports.run = function(config, msg) {
 
   if((input === "rps") || (input === "RPS")) {
     var response = Math.round((Math.random()*100));
-    console.log(response);
     if((response > 0) && (response <= 33)) {
       msg.channel.send("You threw rock!");
     } else if((response > 33) && (response <= 66)) {
